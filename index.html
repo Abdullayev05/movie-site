@@ -1,34 +1,159 @@
+
 <!DOCTYPE html>
 <html lang="az">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Kino Saytı</title>
-    <link rel="stylesheet" href="./style.css">
-    <!-- HLS.js kitabxanası (.m3u8 yayım linkləri üçün) -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script defer src="./app.js"></script>
-</head>
+    <title>TV Kino | Live Television</title>
 
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.13/dist/hls.min.js"></script>
+    <script defer src="app.js"></script>
+</head>
 <body>
 
-    <!-- Sol Menyu: Kanallar -->
-    <div class="sidebar">
-        <div class="sidebar-header">TV Kanallar</div>
-        <div class="channel-list" id="channelList">
-            <!-- Kanallar JavaScript vasitəsilə nömrələnmiş şəkildə bura yüklənəcək -->
-        </div>
-    </div>
+<div class="app">
 
-    <!-- Sağ Tərəf: Pleyer -->
-    <div class="player-container">
-        <div class="video-box" id="videoBox">
-            <p style="color: #666; font-size: 18px;">İzleci başlamaq üçün soldan kanal seçin</p>
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">TV</div>
+            <div>
+                <h1>TV KINO</h1>
+                <span>LIVE TELEVISION</span>
+            </div>
         </div>
-        <div class="now-playing" id="nowPlaying">Kanal seçilməyib</div>
-    </div>
+
+        <div class="sidebar-heading">
+            <span>CHANNELS</span>
+            <span class="channel-count" id="channelCount">18</span>
+        </div>
+
+        <div class="search-box">
+            <span>⌕</span>
+            <input id="searchInput" type="search" placeholder="Kanal axtar...">
+        </div>
+
+        <div class="category-filter">
+            <button class="cat-btn active" data-category="all">Hamısı</button>
+            <button class="cat-btn" data-category="movie">Kino</button>
+            <button class="cat-btn" data-category="news">Xəbər</button>
+            <button class="cat-btn" data-category="sport">İdman</button>
+            <button class="cat-btn" data-category="kids">Uşaq</button>
+            <button class="cat-btn" data-category="music">Musiqi</button>
+        </div>
+
+        <div class="source-info" id="sourceInfo">
+            Connecting to IPTV sources...
+        </div>
+
+        <div class="channel-list" id="channelList">
+            <div class="list-loading">Kanallar yüklənir...</div>
+        </div>
+
+        <div class="sidebar-footer">
+            <span class="live-indicator"></span>
+            Live TV Streaming
+        </div>
+
+    </aside>
+
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="topbar-label">ENTERTAINMENT PLATFORM</p>
+                <h2>Live Television</h2>
+            </div>
+
+            <div class="live-badge">
+                <span></span>
+                LIVE
+            </div>
+        </header>
+
+
+        <section class="player-section">
+
+            <div class="player-header">
+                <div>
+                    <span class="section-label">NOW PLAYING</span>
+                    <h3 id="nowPlaying">Kanal seçilməyib</h3>
+                </div>
+
+                <div class="player-quality">LIVE STREAM</div>
+            </div>
+
+
+            <div class="video-box">
+
+                <div class="player-placeholder" id="playerPlaceholder">
+                    <div class="placeholder-icon">▶</div>
+                    <h3>TV Kino</h3>
+                    <p>İzləməyə başlamaq üçün soldan kanal seçin</p>
+                </div>
+
+                <video
+                    id="mainVideo"
+                    controls
+                    playsinline
+                    preload="none">
+                </video>
+
+                <div class="player-status" id="playerStatus">
+                    <div class="loader" id="statusLoader"></div>
+                    <span id="statusText">Kanal yüklənir...</span>
+
+                    <a
+                        id="mosfilmLink"
+                        href="https://www.mosfilm.ru/cinema/"
+                        target="_blank"
+                        rel="noopener"
+                        hidden>
+                        Mosfilm rəsmi kinoteatrını aç
+                    </a>
+                </div>
+
+            </div>
+
+
+            <div class="player-footer">
+                <div class="player-info">
+                    <span class="live-dot" id="connectionDot"></span>
+                    <span id="playerInfo">Ready to watch</span>
+                </div>
+
+                <button id="retryButton" class="retry-button" hidden>
+                    Yenidən yoxla
+                </button>
+            </div>
+
+        </section>
+
+
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <span class="section-label">YOUR ENTERTAINMENT</span>
+                <h2>Your favorite channels in one place.</h2>
+                <p>
+                    Watch available live television streams
+                    from different public sources.
+                </p>
+            </div>
+
+            <div class="welcome-decoration">TV</div>
+        </section>
+
+        <footer class="main-footer">
+            Channel streams are provided by external sources.
+            Availability depends on the broadcaster and region.
+        </footer>
+
+    </main>
+
+</div>
 
 </body>
-
 </html>
