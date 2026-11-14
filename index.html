@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Kino Saytı</title>
+    <link rel="stylesheet" href="./style.css">
+    <!-- HLS.js kitabxanası (.m3u8 yayım linkləri üçün) -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script defer src="./app.js"></script>
+</head>
+
+<body>
+
+    <!-- Sol Menyu: Kanallar -->
+    <div class="sidebar">
+        <div class="sidebar-header">TV Kanallar</div>
+        <div class="channel-list" id="channelList">
+            <!-- Kanallar JavaScript vasitəsilə nömrələnmiş şəkildə bura yüklənəcək -->
+        </div>
+    </div>
+
+    <!-- Sağ Tərəf: Pleyer -->
+    <div class="player-container">
+        <div class="video-box" id="videoBox">
+            <p style="color: #666; font-size: 18px;">İzleci başlamaq üçün soldan kanal seçin</p>
+        </div>
+        <div class="now-playing" id="nowPlaying">Kanal seçilməyib</div>
+    </div>
+
+</body>
+
+</html>
