@@ -4,8 +4,8 @@
   function boot() {
 
   /* =====================================================
-     TVKINO v3 - 1 kanal = 1 giris, gizli ehtiyat linkler
-     ES5 / Samsung Tizen / LG webOS / Android TV / Browser
+     TVKINO v4 - debug panelli, TV-uyğun, ES5
+     Samsung Tizen / LG webOS / Android TV / Browser
   ===================================================== */
 
   var PROXY = ""; // oz proksin (isteye bagli): "https://xxx.workers.dev/?url="
@@ -29,16 +29,15 @@
   var CATEGORY_RU = { all: "Все", movie: "Кино", news: "Новости", sport: "Спорт", kids: "Детские", music: "Музыка", other: "Другие" };
 
   /* =====================================================
-     ESAS KANALLAR (a = uygun adlar, u = birbasa linkler)
+     ESAS KANALLAR (n=ad, c=olke, k=kateqoriya, a=uygun adlar, u=birbasa linkler)
   ===================================================== */
 
   var DEFS = [
-    // ---- Россия
     { n: "Мосфильм", c: "ru", k: "movie", a: ["mosfilm", "мосфильм"],
       u: ["https://fs.uplink.kz/mosfilm/mono.m3u8?token=onlinetv",
           "http://31.222.235.15/mosfilm/index.m3u8",
           "http://stream.mcquack.net/369/index.m3u8"] },
-    { n: "Первый канал", c: "ru", k: "other", a: ["channelone", "channeloneрussia", "channelonerussia", "pervyikanal", "perviykanal", "1tv", "первыйканал", "первыйканалhd"] },
+    { n: "Первый канал", c: "ru", k: "other", a: ["channelone", "channelonerussia", "pervyikanal", "perviykanal", "1tv", "первыйканал"] },
     { n: "Россия 1", c: "ru", k: "other", a: ["россия1", "russia1", "rossiya1", "rossija1"] },
     { n: "Россия 24", c: "ru", k: "news", a: ["россия24", "russia24", "rossiya24"] },
     { n: "НТВ", c: "ru", k: "other", a: ["нтв", "ntv", "ntvrussia"] },
@@ -63,11 +62,9 @@
     { n: "Ру ТВ", c: "ru", k: "music", a: ["рутв", "rutv"] },
     { n: "Music Box", c: "ru", k: "music", a: ["musicbox", "музбокс", "musicboxru"] },
     { n: "Шансон ТВ", c: "ru", k: "music", a: ["шансонтв", "шансон", "shansontv", "shanson"] },
-    // ---- Беларусь
     { n: "Беларусь 1", c: "by", k: "other", a: ["беларусь1", "belarus1"] },
     { n: "Беларусь 24", c: "by", k: "news", a: ["беларусь24", "belarus24"] },
     { n: "ОНТ", c: "by", k: "other", a: ["онт", "ont"] },
-    // ---- Азербайджан
     { n: "AzTV", c: "az", k: "other", a: ["aztv", "azerbaijantv", "azerbaycantv", "aztvaz"] },
     { n: "İctimai TV", c: "az", k: "other", a: ["ictimai", "ictimaitv", "ictimaitelevizya"] },
     { n: "Xəzər TV", c: "az", k: "other", a: ["xezer", "xezertv", "khazar", "khazartv"] },
@@ -77,17 +74,11 @@
     { n: "Space TV", c: "az", k: "other", a: ["space", "spacetv"] },
     { n: "Lider TV", c: "az", k: "other", a: ["lider", "lidertv"] },
     { n: "ATV Azerbaycan", c: "az", k: "other", a: ["atvaz", "atvazerbaycan", "atv"] },
-    // ---- Turkiye
-    { n: "TRT 1", c: "tr", k: "other", a: ["trt1"],
-      u: ["https://tv-trt1.medya.trt.com.tr/master.m3u8"] },
-    { n: "TRT Haber", c: "tr", k: "news", a: ["trthaber"],
-      u: ["https://tv-trthaber.medya.trt.com.tr/master.m3u8"] },
-    { n: "TRT World", c: "tr", k: "news", a: ["trtworld"],
-      u: ["https://tv-trtworld.medya.trt.com.tr/master.m3u8"] },
-    { n: "TRT Spor", c: "tr", k: "sport", a: ["trtspor", "trtspor1"],
-      u: ["https://tv-trtspor1.medya.trt.com.tr/master.m3u8"] },
-    { n: "TRT Çocuk", c: "tr", k: "kids", a: ["trtcocuk"],
-      u: ["https://tv-trtcocuk.medya.trt.com.tr/master.m3u8"] },
+    { n: "TRT 1", c: "tr", k: "other", a: ["trt1"], u: ["https://tv-trt1.medya.trt.com.tr/master.m3u8"] },
+    { n: "TRT Haber", c: "tr", k: "news", a: ["trthaber"], u: ["https://tv-trthaber.medya.trt.com.tr/master.m3u8"] },
+    { n: "TRT World", c: "tr", k: "news", a: ["trtworld"], u: ["https://tv-trtworld.medya.trt.com.tr/master.m3u8"] },
+    { n: "TRT Spor", c: "tr", k: "sport", a: ["trtspor", "trtspor1"], u: ["https://tv-trtspor1.medya.trt.com.tr/master.m3u8"] },
+    { n: "TRT Çocuk", c: "tr", k: "kids", a: ["trtcocuk"], u: ["https://tv-trtcocuk.medya.trt.com.tr/master.m3u8"] },
     { n: "Show TV", c: "tr", k: "other", a: ["showtv", "show"] },
     { n: "Star TV", c: "tr", k: "other", a: ["startv", "star"] },
     { n: "ATV", c: "tr", k: "other", a: ["atv", "atvtr", "atvturkiye"] },
@@ -118,7 +109,7 @@
   };
 
   if (!el.list || !el.video || !el.search) {
-    console.error("TVKINO: HTML elementleri tapilmadi.");
+    alert("TVKINO: HTML elementleri tapilmadi (channelList / mainVideo / searchInput).");
     return;
   }
 
@@ -138,6 +129,76 @@
     }
     return null;
   }
+
+  /* =====================================================
+     DEBUG PANEL
+  ===================================================== */
+
+  var logs = [];
+  var panel = null, panelOn = false, panelBtn = null;
+
+  function two(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function log(msg) {
+    var d = new Date();
+    var line = two(d.getHours()) + ":" + two(d.getMinutes()) + ":" + two(d.getSeconds()) + " " + msg;
+    logs.push(line);
+    if (logs.length > 60) logs.shift();
+    try { console.log("TVKINO", msg); } catch (e) {}
+    if (panelOn) drawPanel();
+  }
+
+  function envInfo() {
+    var nat = false, mse = false;
+    try { nat = !!(el.video.canPlayType("application/vnd.apple.mpegurl") || el.video.canPlayType("application/x-mpegURL")); } catch (e) {}
+    mse = !!(window.MediaSource || window.WebKitMediaSource);
+    var d = new Date();
+    return [
+      "UA: " + navigator.userAgent,
+      "Chrome: " + (CHROME_VER || "?") + " | native HLS: " + (nat ? "BƏLİ" : "xeyr") + " | MSE: " + (mse ? "BƏLİ" : "xeyr"),
+      "Səhifə: " + location.protocol + " | Tarix: " + d.getFullYear() + "-" + two(d.getMonth() + 1) + "-" + two(d.getDate()) +
+        (d.getFullYear() < 2025 ? "  !!! TV TARİXİ SƏHVDİR - HTTPS İŞLƏMƏZ !!!" : ""),
+      "Hls.js: " + (window.Hls ? "yüklənib" : "yoxdur")
+    ].join("\n");
+  }
+
+  function ensurePanel() {
+    if (panel) return;
+    panel = document.createElement("pre");
+    panel.style.cssText =
+      "position:fixed;left:0;right:0;bottom:0;max-height:48%;overflow:hidden;margin:0;padding:8px 12px;" +
+      "background:rgba(0,0,0,.88);color:#9f9;font:14px/1.35 monospace;z-index:99999;white-space:pre-wrap;" +
+      "word-break:break-all;display:none;";
+    document.body.appendChild(panel);
+  }
+
+  function drawPanel() {
+    ensurePanel();
+    var shown = logs.slice(-14).join("\n");
+    panel.textContent = envInfo() + "\n--------\n" + shown;
+  }
+
+  function togglePanel(force) {
+    ensurePanel();
+    panelOn = (force === undefined) ? !panelOn : !!force;
+    panel.style.display = panelOn ? "block" : "none";
+    if (panelOn) drawPanel();
+  }
+
+  function makeDebugButton() {
+    panelBtn = document.createElement("button");
+    panelBtn.type = "button";
+    panelBtn.textContent = "Диагностика";
+    panelBtn.style.cssText =
+      "position:fixed;top:6px;right:6px;z-index:99998;padding:6px 10px;font-size:13px;opacity:.75;" +
+      "background:#222;color:#e5b94d;border:1px solid #555;border-radius:6px;";
+    panelBtn.addEventListener("click", function () { togglePanel(); });
+    document.body.appendChild(panelBtn);
+  }
+
+  window.onerror = function (msg, src, line) {
+    log("JS XƏTA: " + msg + " (" + String(src || "").split("/").pop() + ":" + line + ")");
+  };
 
   function translateStaticUI() {
     try {
@@ -176,7 +237,7 @@
   (store.get("tvkino_favs", []) || []).forEach(function (k) { favs[k] = true; });
   function saveFavs() { store.set("tvkino_favs", Object.keys(favs)); }
 
-  var okMap = store.get("tvkino_ok", {}) || {};   // kanal -> son isleyen link
+  var okMap = store.get("tvkino_ok", {}) || {};
   function rememberOk(ch, url) { okMap[ch.id] = url; store.set("tvkino_ok", okMap); }
 
   /* =====================================================
@@ -205,6 +266,10 @@
     return "";
   }
 
+  function shortUrl(u) {
+    return String(u).replace(/^https?:\/\//, "").substring(0, 48);
+  }
+
   /* =====================================================
      KANAL BAZASI
   ===================================================== */
@@ -219,11 +284,10 @@
 
   var aliasIndex = {};
   DEFS.forEach(function (d, i) {
-    d.a.forEach(function (a) {
+    d.a.concat([d.n]).forEach(function (a) {
       var key = d.c + "|" + normalize(a);
       if (!aliasIndex[key]) aliasIndex[key] = channels[i];
     });
-    aliasIndex[d.c + "|" + normalize(d.n)] = aliasIndex[d.c + "|" + normalize(d.n)] || channels[i];
   });
 
   function addToChannel(ch, url, logo) {
@@ -269,7 +333,7 @@
   }
 
   /* =====================================================
-     XHR
+     XHR (birbasa, sonra proksi ile)
   ===================================================== */
 
   function httpGet(url, timeoutMs, cb) {
@@ -283,31 +347,46 @@
         if (xhr.status >= 200 && xhr.status < 300) done(null, xhr.responseText);
         else done(new Error("HTTP " + xhr.status));
       };
-      xhr.onerror = function () { done(new Error("network")); };
-      xhr.ontimeout = function () { done(new Error("timeout")); };
+      xhr.onerror = function () { done(new Error("şəbəkə/CORS/sertifikat")); };
+      xhr.ontimeout = function () { done(new Error("vaxt bitdi")); };
       xhr.send();
     } catch (e) { done(e); }
   }
 
   function fetchSource(source, cb) {
     var cacheKey = "tvkino_src_" + source.id;
+    var tries = [];
+
+    source.urls.forEach(function (u) { tries.push(u); });
+    var proxies = PROXY ? [PROXY].concat(PUBLIC_PROXIES) : PUBLIC_PROXIES;
+    proxies.forEach(function (p) { tries.push(p + encodeURIComponent(source.urls[0])); });
+
     var idx = 0;
 
     function useCache() {
       var cached = store.get(cacheKey, "");
       if (typeof cached === "string" && cached.indexOf("#EXTM3U") !== -1) {
+        log("Playlist " + source.id + ": keşdən oxundu");
         cb(parseM3U(cached, source.country), true);
-      } else cb(0, false);
+      } else {
+        log("Playlist " + source.id + ": YÜKLƏNMƏDİ");
+        cb(0, false);
+      }
     }
 
     function next() {
-      if (idx >= source.urls.length) { useCache(); return; }
-      var url = source.urls[idx++];
-      httpGet(url, 15000, function (err, text) {
-        if (err || !text || text.indexOf("#EXTM3U") === -1) { next(); return; }
-        // Cox boyuk fayli yalniz lazimli hisseni saxla (storage dolmasin)
+      if (idx >= tries.length) { useCache(); return; }
+      var url = tries[idx++];
+      httpGet(url, 12000, function (err, text) {
+        if (err || !text || text.indexOf("#EXTM3U") === -1) {
+          log("Playlist " + source.id + " xəta: " + (err ? err.message : "yanlış format") + " <- " + shortUrl(url));
+          next();
+          return;
+        }
         if (text.length < 900000) store.set(cacheKey, text);
-        cb(parseM3U(text, source.country), true);
+        var n = parseM3U(text, source.country);
+        log("Playlist " + source.id + " OK (+" + n + " link) <- " + shortUrl(url));
+        cb(n, true);
       });
     }
     next();
@@ -369,7 +448,6 @@
       out.push({ u: u, p: p, mode: mode });
     }
 
-    // evvelce son isleyen link, sonra https, sonra http
     var urls = ch.urls.slice();
     var good = okMap[ch.id];
     urls.sort(function (a, b) {
@@ -378,10 +456,13 @@
       return sa - sb;
     });
 
+    function isHls(u) { return /m3u8/i.test(u); }
+    function mixedBlocked(u) { return httpsPage && /^http:/i.test(u); }
+
     // 1-ci tur: birbasa
     urls.forEach(function (u) {
-      var blocked = httpsPage && /^http:/i.test(u);
-      if (blocked) return;
+      if (mixedBlocked(u)) return;
+      if (!isHls(u)) { add(u, "", "native"); return; }
       if (native) add(u, "", "native");
       else if (mse) add(u, "", "hlsjs");
       else add(u, "", "native");
@@ -390,7 +471,7 @@
     // 2-ci tur: hls.js (native ugursuz olsa)
     if (native && mse) {
       urls.forEach(function (u) {
-        if (httpsPage && /^http:/i.test(u)) return;
+        if (mixedBlocked(u) || !isHls(u)) return;
         add(u, "", "hlsjs");
       });
     }
@@ -398,8 +479,9 @@
     // 3-cu tur: proksiler
     if (mse) {
       urls.forEach(function (u) {
+        if (!isHls(u)) return;
         if (PROXY) add(u, PROXY, "hlsjs");
-        if (ch.pinned || (httpsPage && /^http:/i.test(u))) {
+        if (ch.pinned || mixedBlocked(u)) {
           PUBLIC_PROXIES.forEach(function (p) { add(u, p, "hlsjs"); });
         }
       });
@@ -441,8 +523,12 @@
       cbs.forEach(function (f) { f(ok); });
     }
     function next() {
-      if (i >= urls.length) { finish(false); return; }
-      loadScript(urls[i++], function (ok) { if (ok) finish(true); else next(); });
+      if (i >= urls.length) { log("hls.js YÜKLƏNMƏDİ (CDN əlçatmaz)"); finish(false); return; }
+      var u = urls[i++];
+      loadScript(u, function (ok) {
+        if (ok) { log("hls.js yükləndi <- " + shortUrl(u)); finish(true); }
+        else { log("hls.js xəta <- " + shortUrl(u)); next(); }
+      });
     }
     next();
   }
@@ -450,6 +536,8 @@
   function playbackError(message, gen) {
     if (!current) return;
     if (gen !== undefined && gen !== generation) return;
+
+    log("✗ cəhd " + (urlIndex + 1) + " uğursuz: " + message);
 
     var list = getAttempts(current);
     if (urlIndex + 1 < list.length) {
@@ -459,13 +547,17 @@
     destroyPlayer();
     setStatus("Канал сейчас недоступен (" + message + "). Выберите другой канал.", "err", false);
     showRetry(true);
+    togglePanel(true);
   }
 
   function tryPlay() {
     var p;
-    try { p = el.video.play(); } catch (e) { return; }
+    try { p = el.video.play(); } catch (e) { log("play() xəta: " + e.message); return; }
     if (p && p.catch) {
-      p.catch(function () { setStatus("Нажмите OK, чтобы запустить трансляцию.", "wait", false); });
+      p.catch(function (e) {
+        log("play() rədd: " + (e && e.name));
+        setStatus("Нажмите OK, чтобы запустить трансляцию.", "wait", false);
+      });
     }
   }
 
@@ -490,12 +582,15 @@
     updateActive();
 
     if (!attempt) {
+      log("Kanal: " + channel.name + " - uyğun link yoxdur (http bloklanıb?)");
       setStatus("Для этого канала нет доступного адреса.", "err", false);
       showRetry(true);
       return;
     }
 
     currentMode = attempt.mode;
+    log("▶ " + channel.name + " [" + (index + 1) + "/" + attempts.length + "] " + attempt.mode +
+        (attempt.p ? "+proksi" : "") + " " + shortUrl(attempt.u));
     setStatus("Загрузка: " + channel.name + " (" + (index + 1) + "/" + attempts.length + ")", "wait", true);
 
     playTimeout = setTimeout(function () {
@@ -531,15 +626,19 @@
           hls = new window.Hls(cfg);
 
           hls.on(window.Hls.Events.MANIFEST_PARSED, function () {
-            if (myGen === generation) tryPlay();
+            if (myGen !== generation) return;
+            log("manifest OK");
+            tryPlay();
           });
           hls.on(window.Hls.Events.ERROR, function (evt, data) {
-            if (myGen !== generation || !data || !data.fatal) return;
+            if (myGen !== generation || !data) return;
+            log("hls " + (data.fatal ? "FATAL " : "") + data.type + "/" + data.details);
+            if (!data.fatal) return;
             if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR && !mediaRecovered) {
               mediaRecovered = true;
               try { hls.recoverMediaError(); return; } catch (e) {}
             }
-            playbackError("ошибка HLS", myGen);
+            playbackError("ошибка HLS (" + data.details + ")", myGen);
           });
 
           hls.loadSource(attempt.u);
@@ -563,8 +662,10 @@
     if (current) {
       var attempts = getAttempts(current);
       if (attempts[urlIndex]) rememberOk(current, attempts[urlIndex].u);
+      log("✓ OYNAYIR: " + current.name);
     }
     updateActive();
+    if (panelOn) setTimeout(function () { togglePanel(false); }, 4000);
   });
 
   el.video.addEventListener("waiting", function () {
@@ -574,7 +675,8 @@
   el.video.addEventListener("error", function () {
     if (!current || currentMode !== "native") return;
     if (!el.video.getAttribute("src")) return;
-    playbackError("ошибка видео", generation);
+    var code = el.video.error ? el.video.error.code : "?";
+    playbackError("ошибка видео, kod " + code, generation);
   });
 
   el.video.addEventListener("ended", function () {
@@ -652,14 +754,14 @@
         logo.className = "channel-logo";
         logo.src = ch.logo;
         logo.alt = ch.name;
-        (function (img) {
+        (function (img, chn) {
           img.onerror = function () {
             var fb = document.createElement("div");
             fb.className = "channel-logo";
-            fb.textContent = initials(ch.name);
+            fb.textContent = initials(chn.name);
             if (img.parentNode) img.parentNode.replaceChild(fb, img);
           };
-        })(logo);
+        })(logo, ch);
       } else {
         logo = document.createElement("div");
         logo.className = "channel-logo";
@@ -738,7 +840,8 @@
 
   try {
     if (window.tizen && window.tizen.tvinputdevice) {
-      ["MediaPlay", "MediaPause", "MediaPlayPause", "MediaStop", "ChannelUp", "ChannelDown"]
+      ["MediaPlay", "MediaPause", "MediaPlayPause", "MediaStop", "ChannelUp", "ChannelDown",
+       "ColorF2Yellow", "ColorF3Blue", "Info"]
         .forEach(function (k) { try { window.tizen.tvinputdevice.registerKey(k); } catch (e) {} });
     }
   } catch (e) {}
@@ -824,6 +927,11 @@
     var back = key === "Escape" || code === 27 || code === 10009 || code === 461 ||
                (key === "Backspace" && tag !== "INPUT");
 
+    // Debug: sari(405), mavi(406), Info(457), D
+    if (code === 405 || code === 406 || code === 457 || (code === 68 && tag !== "INPUT")) {
+      event.preventDefault(); togglePanel(); return;
+    }
+
     if (code === 415) { event.preventDefault(); tryPlay(); return; }
     if (code === 19 || code === 413) { event.preventDefault(); try { el.video.pause(); } catch (e) {} return; }
     if (code === 10252 || code === 179) { event.preventDefault(); togglePause(); return; }
@@ -835,6 +943,7 @@
     }
 
     if (back) {
+      if (panelOn) { event.preventDefault(); togglePanel(false); return; }
       if (document.fullscreenElement || document.webkitFullscreenElement) {
         event.preventDefault(); toggleFullscreen(); return;
       }
@@ -882,8 +991,15 @@
 
   function initialize() {
     translateStaticUI();
+    makeDebugButton();
 
-    // Birbasa linkler olan kanallar derhal gorunur (internet siyahisi gelmese de)
+    log("TVKINO v4 başladı");
+    var yr = new Date().getFullYear();
+    if (yr < 2025) {
+      log("DİQQƏT: TV tarixi səhvdir (" + yr + "). TV ayarlarında tarix/saatı avtomatik edin!");
+      togglePanel(true);
+    }
+
     render();
     if (el.info) el.info.textContent = "Загрузка списков каналов...";
     setStatus("", "ok", false);
@@ -901,8 +1017,9 @@
           var n = channels.filter(playable).length;
           if (el.info) {
             el.info.textContent = "Каналов: " + n + " | Списков загружено: " + loaded + "/" + SOURCES.length +
-              (loaded === 0 ? " (нет доступа к интернету или GitHub)" : "");
+              (loaded === 0 ? " (нет доступа к GitHub - нажмите жёлтую кнопку)" : "");
           }
+          if (loaded === 0) togglePanel(true);
         }
       });
     });
