@@ -4,124 +4,133 @@
   function boot() {
 
   /* =====================================================
-     TVKINO - SMART TV IPTV PLAYER (ES5, TV-safe)
-     Samsung Tizen / LG webOS / Android TV / Browser
+     TVKINO v3 - 1 kanal = 1 giris, gizli ehtiyat linkler
+     ES5 / Samsung Tizen / LG webOS / Android TV / Browser
   ===================================================== */
 
-  var BASES = [
-    "https://iptv-org.github.io/iptv/",
-    "https://raw.githubusercontent.com/iptv-org/iptv/master/streams/../"
-  ];
-  // raw.githubusercontent mirror (playlist fayllari "iptv" repo-da deyil, ona görə ayrıca düzgün yol):
-  BASES[1] = "https://raw.githubusercontent.com/iptv-org/iptv/gh-pages/";
-
-  var MAX_CHANNELS = 100;
-
-  // Öz proksin (istəyə bağlı), məs: "https://tvkino.adiniz.workers.dev/?url="
-  var PROXY = "";
+  var PROXY = ""; // oz proksin (isteye bagli): "https://xxx.workers.dev/?url="
   var PUBLIC_PROXIES = ["https://corsproxy.io/?url=", "https://api.allorigins.win/raw?url="];
 
+  var ISO = "https://iptv-org.github.io/iptv/";
+  var ISO_RAW = "https://raw.githubusercontent.com/iptv-org/iptv/master/streams/";
+
   var SOURCES = [
-    { id: "ru",  path: "countries/ru.m3u",  country: "ru" },
-    { id: "by",  path: "countries/by.m3u",  country: "by" },
-    { id: "az",  path: "countries/az.m3u",  country: "az" },
-    { id: "tr",  path: "countries/tr.m3u",  country: "tr" },
-    { id: "ua",  path: "countries/ua.m3u",  country: "ua" },
-    { id: "rus", path: "languages/rus.m3u", country: "ru" }
+    { id: "ru",  country: "ru", urls: [ISO + "countries/ru.m3u", ISO_RAW + "ru.m3u"] },
+    { id: "by",  country: "by", urls: [ISO + "countries/by.m3u", ISO_RAW + "by.m3u"] },
+    { id: "az",  country: "az", urls: [ISO + "countries/az.m3u", ISO_RAW + "az.m3u"] },
+    { id: "tr",  country: "tr", urls: [ISO + "countries/tr.m3u", ISO_RAW + "tr.m3u"] },
+    { id: "rus", country: "ru", urls: [ISO + "languages/rus.m3u"] },
+    { id: "free", country: "auto", urls: [
+      "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8"
+    ] }
   ];
 
-  var COUNTRY = {
-    ru: "Россия", by: "Беларусь", az: "Азербайджан", tr: "Турция", ua: "Украина"
-  };
+  var COUNTRY = { ru: "Россия", by: "Беларусь", az: "Азербайджан", tr: "Турция" };
+  var CATEGORY_RU = { all: "Все", movie: "Кино", news: "Новости", sport: "Спорт", kids: "Детские", music: "Музыка", other: "Другие" };
 
-  var CATEGORY_RU = {
-    all: "Все", movie: "Кино", news: "Новости", sport: "Спорт",
-    kids: "Детские", music: "Музыка", other: "Другие"
-  };
+  /* =====================================================
+     ESAS KANALLAR (a = uygun adlar, u = birbasa linkler)
+  ===================================================== */
 
-  var STATIC_RU = {
-    "ready to watch": "Готово к просмотру",
-    "canlı yayım": "Прямой эфир",
-    "canli yayim": "Прямой эфир",
-    "yüklənir...": "Загрузка...",
-    "xəta": "Ошибка",
-    "kanallar": "Каналы",
-    "kanal": "Канал",
-    "channels": "Каналы",
-    "channel": "Канал",
-    "live tv": "Прямой эфир",
-    "canlı tv": "Прямой эфир",
-    "kanal axtar": "Поиск канала",
-    "search": "Поиск",
-    "search channels": "Поиск каналов",
-    "hamısı": "Все",
-    "all": "Все",
-    "filmlər": "Кино",
-    "movies": "Кино",
-    "xəbərlər": "Новости",
-    "news": "Новости",
-    "idman": "Спорт",
-    "sport": "Спорт",
-    "sports": "Спорт",
-    "uşaq": "Детские",
-    "kids": "Детские",
-    "musiqi": "Музыка",
-    "music": "Музыка",
-    "digər": "Другие",
-    "other": "Другие",
-    "yenidən cəhd et": "Повторить",
-    "retry": "Повторить",
-    "try again": "Повторить",
-    "kanal seçin": "Выберите канал",
-    "select a channel": "Выберите канал",
-    "choose a channel": "Выберите канал",
-    "sevimlilər": "Избранное",
-    "favorites": "Избранное",
-    "mosfilm": "Мосфильм",
-    "loading": "Загрузка",
-    "loading...": "Загрузка...",
-    "now playing": "Сейчас в эфире",
-    "playback error": "Ошибка воспроизведения"
-  };
+  var DEFS = [
+    // ---- Россия
+    { n: "Мосфильм", c: "ru", k: "movie", a: ["mosfilm", "мосфильм"],
+      u: ["https://fs.uplink.kz/mosfilm/mono.m3u8?token=onlinetv",
+          "http://31.222.235.15/mosfilm/index.m3u8",
+          "http://stream.mcquack.net/369/index.m3u8"] },
+    { n: "Первый канал", c: "ru", k: "other", a: ["channelone", "channeloneрussia", "channelonerussia", "pervyikanal", "perviykanal", "1tv", "первыйканал", "первыйканалhd"] },
+    { n: "Россия 1", c: "ru", k: "other", a: ["россия1", "russia1", "rossiya1", "rossija1"] },
+    { n: "Россия 24", c: "ru", k: "news", a: ["россия24", "russia24", "rossiya24"] },
+    { n: "НТВ", c: "ru", k: "other", a: ["нтв", "ntv", "ntvrussia"] },
+    { n: "Матч ТВ", c: "ru", k: "sport", a: ["матчтв", "matchtv", "match", "матч"] },
+    { n: "СТС", c: "ru", k: "other", a: ["стс", "sts", "ctc"] },
+    { n: "ТНТ", c: "ru", k: "other", a: ["тнт", "tnt"] },
+    { n: "РЕН ТВ", c: "ru", k: "other", a: ["рентв", "rentv", "ren"] },
+    { n: "Пятый канал", c: "ru", k: "other", a: ["пятыйканал", "5канал", "5kanal", "channel5", "pyatyikanal", "5tv"] },
+    { n: "ТВ Центр", c: "ru", k: "other", a: ["твцентр", "твц", "tvc", "tvcenter", "tvcentr"] },
+    { n: "Звезда", c: "ru", k: "other", a: ["звезда", "zvezda"] },
+    { n: "Мир", c: "ru", k: "other", a: ["мир", "mir", "mirtv"] },
+    { n: "Культура", c: "ru", k: "other", a: ["культура", "россияк", "russiak", "kultura", "russiakultura"] },
+    { n: "Домашний", c: "ru", k: "other", a: ["домашний", "domashniy", "domashnii"] },
+    { n: "Пятница", c: "ru", k: "other", a: ["пятница", "pyatnitsa", "friday"] },
+    { n: "ТВ-3", c: "ru", k: "other", a: ["тв3", "tv3"] },
+    { n: "ОТР", c: "ru", k: "other", a: ["отр", "otr"] },
+    { n: "Карусель", c: "ru", k: "kids", a: ["карусель", "karusel", "karusell"] },
+    { n: "Мульт", c: "ru", k: "kids", a: ["мульт", "mult"] },
+    { n: "Euronews", c: "ru", k: "news", a: ["euronews", "евроньюс", "euronewsrussian", "euronewsrussia"] },
+    { n: "РБК", c: "ru", k: "news", a: ["рбк", "rbc", "rbk"] },
+    { n: "Муз-ТВ", c: "ru", k: "music", a: ["музтв", "muztv"] },
+    { n: "Ру ТВ", c: "ru", k: "music", a: ["рутв", "rutv"] },
+    { n: "Music Box", c: "ru", k: "music", a: ["musicbox", "музбокс", "musicboxru"] },
+    { n: "Шансон ТВ", c: "ru", k: "music", a: ["шансонтв", "шансон", "shansontv", "shanson"] },
+    // ---- Беларусь
+    { n: "Беларусь 1", c: "by", k: "other", a: ["беларусь1", "belarus1"] },
+    { n: "Беларусь 24", c: "by", k: "news", a: ["беларусь24", "belarus24"] },
+    { n: "ОНТ", c: "by", k: "other", a: ["онт", "ont"] },
+    // ---- Азербайджан
+    { n: "AzTV", c: "az", k: "other", a: ["aztv", "azerbaijantv", "azerbaycantv", "aztvaz"] },
+    { n: "İctimai TV", c: "az", k: "other", a: ["ictimai", "ictimaitv", "ictimaitelevizya"] },
+    { n: "Xəzər TV", c: "az", k: "other", a: ["xezer", "xezertv", "khazar", "khazartv"] },
+    { n: "CBC", c: "az", k: "other", a: ["cbc", "cbcaz", "cbctv"] },
+    { n: "İdman TV", c: "az", k: "sport", a: ["idman", "idmantv", "idmanazerbaycan"] },
+    { n: "ARB", c: "az", k: "other", a: ["arb", "arbtv"] },
+    { n: "Space TV", c: "az", k: "other", a: ["space", "spacetv"] },
+    { n: "Lider TV", c: "az", k: "other", a: ["lider", "lidertv"] },
+    { n: "ATV Azerbaycan", c: "az", k: "other", a: ["atvaz", "atvazerbaycan", "atv"] },
+    // ---- Turkiye
+    { n: "TRT 1", c: "tr", k: "other", a: ["trt1"],
+      u: ["https://tv-trt1.medya.trt.com.tr/master.m3u8"] },
+    { n: "TRT Haber", c: "tr", k: "news", a: ["trthaber"],
+      u: ["https://tv-trthaber.medya.trt.com.tr/master.m3u8"] },
+    { n: "TRT World", c: "tr", k: "news", a: ["trtworld"],
+      u: ["https://tv-trtworld.medya.trt.com.tr/master.m3u8"] },
+    { n: "TRT Spor", c: "tr", k: "sport", a: ["trtspor", "trtspor1"],
+      u: ["https://tv-trtspor1.medya.trt.com.tr/master.m3u8"] },
+    { n: "TRT Çocuk", c: "tr", k: "kids", a: ["trtcocuk"],
+      u: ["https://tv-trtcocuk.medya.trt.com.tr/master.m3u8"] },
+    { n: "Show TV", c: "tr", k: "other", a: ["showtv", "show"] },
+    { n: "Star TV", c: "tr", k: "other", a: ["startv", "star"] },
+    { n: "ATV", c: "tr", k: "other", a: ["atv", "atvtr", "atvturkiye"] },
+    { n: "Kanal D", c: "tr", k: "other", a: ["kanald"] },
+    { n: "TV8", c: "tr", k: "other", a: ["tv8"] },
+    { n: "NOW", c: "tr", k: "other", a: ["now", "nowtv", "fox", "foxtv"] },
+    { n: "Habertürk", c: "tr", k: "news", a: ["haberturk", "haberturktv"] },
+    { n: "CNN Türk", c: "tr", k: "news", a: ["cnnturk"] },
+    { n: "NTV", c: "tr", k: "news", a: ["ntv", "ntvtr"] },
+    { n: "A Haber", c: "tr", k: "news", a: ["ahaber"] },
+    { n: "A Spor", c: "tr", k: "sport", a: ["aspor"] },
+    { n: "TGRT Haber", c: "tr", k: "news", a: ["tgrthaber", "tgrt"] },
+    { n: "Beyaz TV", c: "tr", k: "other", a: ["beyaztv", "beyaz"] }
+  ];
+
+  /* =====================================================
+     ELEMENTLER
+  ===================================================== */
 
   function $(id) { return document.getElementById(id); }
 
   var el = {
-    list: $("channelList"),
-    count: $("channelCount"),
-    search: $("searchInput"),
-    info: $("sourceInfo"),
-    video: $("mainVideo"),
-    now: $("nowPlaying"),
-    ph: $("playerPlaceholder"),
-    status: $("playerStatus"),
-    statusText: $("statusText"),
-    loader: $("statusLoader"),
-    dot: $("connectionDot"),
-    pinfo: $("playerInfo"),
-    retry: $("retryButton"),
-    mos: $("mosfilmLink")
+    list: $("channelList"), count: $("channelCount"), search: $("searchInput"),
+    info: $("sourceInfo"), video: $("mainVideo"), now: $("nowPlaying"),
+    ph: $("playerPlaceholder"), status: $("playerStatus"), statusText: $("statusText"),
+    loader: $("statusLoader"), dot: $("connectionDot"), pinfo: $("playerInfo"),
+    retry: $("retryButton"), mos: $("mosfilmLink")
   };
 
   if (!el.list || !el.video || !el.search) {
-    console.error("TVKINO: Required HTML elements were not found.");
+    console.error("TVKINO: HTML elementleri tapilmadi.");
     return;
   }
 
-  /* ---------- small helpers (old-browser safe) ---------- */
-
   function each(list, fn) { Array.prototype.forEach.call(list, fn); }
-
   function toggleClass(node, cls, on) {
     if (!node) return;
     if (on) node.classList.add(cls); else node.classList.remove(cls);
   }
-
   function matches(node, sel) {
     var f = node.matches || node.webkitMatchesSelector || node.msMatchesSelector;
     return f ? f.call(node, sel) : false;
   }
-
   function closestEl(node, sel) {
     while (node && node.nodeType === 1) {
       if (matches(node, sel)) return node;
@@ -130,408 +139,97 @@
     return null;
   }
 
-  /* =====================================================
-     RUSSIAN UI
-  ===================================================== */
-
   function translateStaticUI() {
     try {
       document.documentElement.setAttribute("lang", "ru");
       document.title = "ТВКИНО — Прямой эфир";
-
       each(document.querySelectorAll(".cat-btn"), function (btn) {
         var c = btn.getAttribute("data-category");
         if (c && CATEGORY_RU[c]) btn.textContent = CATEGORY_RU[c];
       });
-
       el.search.setAttribute("placeholder", "Поиск канала...");
-
       if (el.retry && !el.retry.children.length) el.retry.textContent = "Повторить";
-
-      var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
-      var nodes = [], n;
-      while ((n = walker.nextNode())) nodes.push(n);
-
-      nodes.forEach(function (node) {
-        var parent = node.parentNode;
-        if (!parent) return;
-        var tag = parent.nodeName;
-        if (tag === "SCRIPT" || tag === "STYLE") return;
-        var raw = node.nodeValue || "";
-        var key = raw.trim().toLowerCase();
-        if (key && STATIC_RU[key]) node.nodeValue = raw.replace(raw.trim(), STATIC_RU[key]);
-      });
-
-      each(document.querySelectorAll("[placeholder],[title],[aria-label]"), function (node) {
-        ["placeholder", "title", "aria-label"].forEach(function (attr) {
-          var v = node.getAttribute(attr);
-          if (!v) return;
-          var t = STATIC_RU[v.trim().toLowerCase()];
-          if (t) node.setAttribute(attr, t);
-        });
-      });
     } catch (e) {}
   }
 
   /* =====================================================
-     CHANNEL NAMES -> RUSSIAN
-  ===================================================== */
-
-  var NAME_RU = {
-    "mosfilm": "Мосфильм", "euronews": "Евроньюс", "cnn": "Си-эн-эн",
-    "cnn turk": "Си-эн-эн Тюрк", "cnn international": "Си-эн-эн Интернешнл",
-    "bbc": "Би-би-си", "bbc news": "Би-би-си Ньюс", "bbc world news": "Би-би-си Ворлд Ньюс",
-    "trt 1": "ТРТ 1", "trt1": "ТРТ 1", "trt haber": "ТРТ Хабер", "trt world": "ТРТ Ворлд",
-    "trt spor": "ТРТ Спор", "trt cocuk": "ТРТ Чоджук", "atv": "АТВ", "atv avrupa": "АТВ Авруп��",
-    "show tv": "Шоу ТВ", "star tv": "Стар ТВ", "kanal d": "Канал Д", "fox": "Фокс",
-    "fox tv": "Фокс ТВ", "now tv": "Нау ТВ", "tv8": "ТВ8", "tv 8": "ТВ8",
-    "a haber": "А Хабер", "a spor": "А Спор", "a para": "А Пара",
-    "haberturk": "Хабертюрк", "haber turk": "Хабертюрк", "ntv": "НТВ", "teve2": "Теве2",
-    "beyaz tv": "Бейаз ТВ", "ht spor": "ХТ Спор", "htspor tv": "ХТ Спор ТВ",
-    "bein sports": "Бин Спортс", "idman tv": "Идман ТВ", "idman": "Идман ТВ",
-    "cbc sport": "Си-би-си Спорт", "cbc": "Си-би-си", "space tv": "Спейс ТВ",
-    "azad azerbaycan": "Азад Азербайджан", "azad azərbaycan": "Азад Азербайджан",
-    "azad azerbaijan": "Азад Азербайджан", "azerbaijan tv": "Азербайджан ТВ",
-    "aztv": "АзТВ", "az tv": "АзТВ", "xezer tv": "Хазар ТВ", "xəzər tv": "Хазар ТВ",
-    "ictimai tv": "Общественное ТВ Азербайджана", "ictimai": "Ичтимаи ТВ",
-    "arb": "АРБ", "arb 24": "АРБ 24", "lider tv": "Лидер ТВ", "baku tv": "Баку ТВ",
-    "medeniyyet tv": "Медениййят ТВ", "mədəniyyət tv": "Медениййят ТВ",
-    "disney channel": "Дисней Ченнел", "cartoon network": "Картун Нетворк",
-    "nickelodeon": "Никелодеон", "nick jr": "Ник Джуниор",
-    "eurosport": "Евроспорт", "eurosport 1": "Евроспорт 1", "eurosport 2": "Евроспорт 2",
-    "setanta sports": "Сетанта Спортс", "rt": "РТ", "rt news": "РТ Ньюс", "rtvi": "РТВИ",
-    "cgtn": "СиДжиТиЭн", "france 24": "Франс 24", "dw": "Дойче Велле", "dw tv": "Дойче Велле",
-    "sky news": "Скай Ньюс", "al jazeera": "Аль-Джазира",
-    "music box": "Мьюзик Бокс", "musicbox": "Мьюзик Бокс", "bridge tv": "Бридж ТВ",
-    "ru tv": "Ру ТВ", "muz tv": "Муз ТВ", "tnt": "ТНТ", "sts": "СТС", "ctc": "СТС",
-    "ren tv": "РЕН ТВ", "tvc": "ТВЦ", "tv3": "ТВ-3", "tv-3": "ТВ-3", "hbo": "Эйч-би-оу",
-    "1tv": "Первый канал", "channel one": "Первый канал", "channel one russia": "Первый канал",
-    "russia 1": "Россия 1", "russia 24": "Россия 24", "russia k": "Россия К",
-    "belarus 1": "Беларусь 1", "belarus 24": "Беларусь 24", "belarus 2": "Беларусь 2",
-    "belarus 3": "Беларусь 3", "belarus 5": "Беларусь 5", "ont": "ОНТ", "stv": "СТВ",
-    "inter": "Интер", "1+1": "1+1", "ictv": "ICTV", "stb": "СТБ", "novyi kanal": "Новый канал",
-    "5 kanal": "5 канал", "5 channel": "5 канал", "mir": "Мир", "mir 24": "Мир 24",
-    "zvezda": "Звезда", "pobeda": "Победа", "karusel": "Карусель", "pyatnitsa": "Пятница",
-    "domashniy": "Домашний", "spas": "Спас", "otr": "ОТР", "match tv": "Матч ТВ"
-  };
-
-  var TR_MULTI = [
-    ["shch", "щ"], ["sch", "щ"], ["sh", "ш"], ["ch", "ч"], ["zh", "ж"],
-    ["kh", "х"], ["ts", "ц"], ["yu", "ю"], ["ya", "я"], ["yo", "ё"],
-    ["ph", "ф"], ["th", "т"], ["ck", "к"], ["oo", "у"], ["ee", "и"], ["ou", "у"]
-  ];
-
-  var TR_SINGLE = {
-    a: "а", b: "б", c: "к", d: "д", e: "е", f: "ф", g: "г", h: "х", i: "и",
-    j: "дж", k: "к", l: "л", m: "м", n: "н", o: "о", p: "п", q: "к", r: "р",
-    s: "с", t: "т", u: "у", v: "в", w: "в", x: "кс", y: "й", z: "з",
-    "ç": "ч", "ş": "ш", "ğ": "г", "ı": "ы", "ö": "о", "ü": "ю", "ə": "э",
-    "é": "е", "è": "е", "à": "а", "â": "а", "î": "и", "ô": "о", "û": "у",
-    "ñ": "нь", "ä": "э", "ß": "сс"
-  };
-
-  function translitWord(word) {
-    var src = word.toLowerCase().replace(/i\u0307/g, "i");
-    var out = "";
-    var i = 0;
-
-    while (i < src.length) {
-      var matched = false;
-      for (var m = 0; m < TR_MULTI.length; m++) {
-        var pair = TR_MULTI[m];
-        if (src.substr(i, pair[0].length) === pair[0]) {
-          out += pair[1];
-          i += pair[0].length;
-          matched = true;
-          break;
-        }
-      }
-      if (matched) continue;
-
-      var ch = src.charAt(i);
-      out += TR_SINGLE[ch] !== undefined ? TR_SINGLE[ch] : ch;
-      i++;
-    }
-
-    var letters = word.replace(/[^A-Za-zÇŞĞİÖÜƏçşğıöüə]/g, "");
-    var allUpper = letters.length >= 2 && letters === letters.toUpperCase();
-    if (allUpper) return out.toUpperCase();
-
-    var first = word.charAt(0);
-    if (first && first !== first.toLowerCase()) {
-      return out.charAt(0).toUpperCase() + out.slice(1);
-    }
-    return out;
-  }
-
-  function toRussianName(name) {
-    var base = String(name || "").trim();
-    if (!base) return base;
-
-    var key = base.toLowerCase().replace(/\s+/g, " ");
-    var stripped = key.replace(/\b(hd|sd|fhd|uhd)\b/g, "").replace(/\s+/g, " ").trim();
-
-    if (NAME_RU[key]) return NAME_RU[key];
-    if (NAME_RU[stripped]) return NAME_RU[stripped] + (/\bhd\b/i.test(key) ? " HD" : "");
-
-    if (/[\u0400-\u04FF]/.test(base)) return base;
-
-    return base.split(/(\s+)/).map(function (part) {
-      if (!part.trim()) return part;
-      if (/^(hd|sd|fhd|uhd)$/i.test(part)) return part.toUpperCase();
-      if (!/[A-Za-zÇŞĞİÖÜƏçşğıöüəéèàâîôûñäß]/.test(part)) return part;
-      return part.replace(/[A-Za-zÇŞĞİÖÜƏçşğıöüəéèàâîôûñäß]+/g, function (w) {
-        return translitWord(w);
-      });
-    }).join("");
-  }
-
-  function displayName(channel) {
-    if (!channel._ru) channel._ru = toRussianName(channel.name);
-    return channel._ru;
-  }
-
-  /* =====================================================
-     DEVICE DETECTION
+     CIHAZ / STORAGE
   ===================================================== */
 
   var ua = navigator.userAgent.toLowerCase();
-
-  var DEVICE = {
-    samsung: /samsung|smart-tv|tizen/.test(ua),
-    lg: /web0s|webos|netcast/.test(ua),
-    android: /android/.test(ua),
-    tv: /smart-tv|smarttv|tizen|webos|web0s|netcast|hbbtv|googletv|android|bravia|crkey/.test(ua)
-  };
-
-  var IS_TV = DEVICE.tv;
+  var IS_TV = /smart-tv|smarttv|tizen|webos|web0s|netcast|hbbtv|googletv|android|bravia|crkey/.test(ua);
   toggleClass(document.body, "smart-tv", IS_TV);
-
-  var chromeMatch = /chrome\/(\d+)/.exec(ua);
-  var CHROME_VER = chromeMatch ? parseInt(chromeMatch[1], 10) : 0;
-
-  /* =====================================================
-     STORAGE
-  ===================================================== */
+  var cm = /chrome\/(\d+)/.exec(ua);
+  var CHROME_VER = cm ? parseInt(cm[1], 10) : 0;
 
   var store = {
-    get: function (key, fallback) {
-      try {
-        var value = localStorage.getItem(key);
-        return value === null ? fallback : JSON.parse(value);
-      } catch (e) { return fallback; }
+    get: function (key, fb) {
+      try { var v = localStorage.getItem(key); return v === null ? fb : JSON.parse(v); }
+      catch (e) { return fb; }
     },
-    set: function (key, value) {
-      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+    set: function (key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
     }
   };
 
   var favs = {};
   (store.get("tvkino_favs", []) || []).forEach(function (k) { favs[k] = true; });
-
   function saveFavs() { store.set("tvkino_favs", Object.keys(favs)); }
 
-  /* =====================================================
-     MOSFILM
-     (Loqoları qaytarmaq istəyirsənsə, köhnə koddakı iki uzun
-      base64 sətrini LOGO_GOLD və LOGO_MOS dəyişənlərinə yaz.)
-  ===================================================== */
-
-  var LOGO_GOLD = "";
-  var LOGO_MOS = "";
-
-  var MOSFILM = [
-    {
-      name: "Мосфильм", country: "ru", category: "movie", logo: LOGO_MOS, pinned: true,
-      urls: ["https://fs.uplink.kz/mosfilm/mono.m3u8?token=onlinetv"]
-    },
-    {
-      name: "Мосфильм. Золотая коллекция", country: "ru", category: "movie", logo: LOGO_GOLD, pinned: true,
-      urls: ["http://31.222.235.15/mosfilm/index.m3u8"]
-    },
-    {
-      name: "Мосфильм Интернешнл", country: "ru", category: "movie", logo: "", pinned: true,
-      urls: ["http://stream.mcquack.net/369/index.m3u8"]
-    }
-  ];
+  var okMap = store.get("tvkino_ok", {}) || {};   // kanal -> son isleyen link
+  function rememberOk(ch, url) { okMap[ch.id] = url; store.set("tvkino_ok", okMap); }
 
   /* =====================================================
-     PRIORITY CHANNELS
-  ===================================================== */
-
-  var PRIORITY = [
-    ["mosfilm", "мocфильм", "мосфильм"],
-    ["россия1", "russia1", "rossiya1"],
-    ["россия24", "russia24", "rossiya24"],
-    ["первыйканал", "channelone", "1tv"],
-    ["нтв", "ntv"],
-    ["беларусь24", "belarus24"],
-    ["стс", "ctc", "sts"],
-    ["звезда", "zvezda"],
-    ["победа", "pobeda"],
-    ["тнт", "tnt"],
-    ["рен тв", "рентв", "rentv"],
-    ["пятыйканал", "5канал", "channel5"],
-    ["твцентр", "твц", "tvc"],
-    ["мир", "mir"],
-    ["культура", "russiak", "россияк"],
-    ["домашний", "domashniy"],
-    ["пятница", "pyatnitsa"],
-    ["тв3", "tv3"],
-    ["спас", "spas"],
-    ["рт", "rt"],
-    ["рбк", "rbk"],
-    ["киносвидание", "kinosvidanie"],
-    ["киномикс", "kinomix"],
-    ["кинопремьера", "kinopremera"],
-    ["кинохит", "kinohit"],
-    ["мужскоекино", "muzhskoekino"],
-    ["русскийбестселлер", "russkiybestseller"],
-    ["русскийдетектив", "russkiydetektiv"],
-    ["русскийроман", "russkiyroman"],
-    ["домкино", "domkino"],
-    ["иллюзион", "illusion"],
-    ["иллюзион+", "illusionplus"],
-    ["сериал", "serial"],
-    ["комедия", "komediya"],
-    ["родноекино", "rodnoekino"],
-    ["премиальноекино", "premiumkino"],
-    ["euronews", "евроньюс"],
-    ["rtnews", "rtnews"],
-    ["cgtn", "cgtn"],
-    ["беларусь1", "belarus1"],
-    ["мир24", "mir24"],
-    ["известия", "izvestia"],
-    ["life", "лайф"],
-    ["карусель", "karusel"],
-    ["мульт", "mult"],
-    ["детскиймир", "detskiymir"],
-    ["мультимузыка", "multimuzika"],
-    ["солнце", "solntse"],
-    ["disney", "дисней"],
-    ["cartoonnetwork"],
-    ["nickelodeon"],
-    ["nickjr"],
-    ["gulli"],
-    ["музтв", "muztv"],
-    ["рутв", "rutv"],
-    ["musicbox", "музбокс"],
-    ["bridge", "бридж"],
-    ["шансон", "shanson"],
-    ["songtv"],
-    ["матчтв", "matchtv"],
-    ["матчигра", "matchigra"],
-    ["матчарена", "matcharena"],
-    ["матчфутбол", "matchfootball"],
-    ["setanta"],
-    ["eurosport"],
-    ["sport"],
-    ["football"],
-    ["сарафан", "sarafan"],
-    ["чебурашка", "cheburashka"],
-    ["суббота", "subbota"],
-    ["ю", "u_tv"],
-    ["перец", "perec"],
-    ["2x2"],
-    ["тнт4", "tnt4"],
-    ["супер", "super"],
-    ["чепе", "che"],
-    ["звездаплюс", "zvezdaplus"],
-    ["россияобщественное", "otr"],
-    ["общественноетелевидение", "otr"],
-    ["союз", "soyuz"],
-    ["союзный", "soyuzny"],
-    ["беларусь2", "belarus2"],
-    ["беларусь3", "belarus3"],
-    ["беларусь5", "belarus5"],
-    ["онтк", "ont"],
-    ["столичное", "stolichnoe"],
-    ["азтв", "aztv"],
-    ["итв", "itv"],
-    ["арб", "arb"],
-    ["медиа", "media"],
-    ["atv"],
-    ["space"],
-    ["real"],
-    ["xezer", "khazar"],
-    ["ictimaitv"],
-    ["idman", "idman"],
-    ["cbc"],
-    ["arb24"],
-    ["arbgunesh"],
-    ["baku"],
-    ["lider"],
-    ["kanal"],
-    ["trt1"],
-    ["trthaber"],
-    ["trtworld"],
-    ["atvtr"],
-    ["showtv"],
-    ["kanald"],
-    ["startv"],
-    ["fox"],
-    ["tv8"],
-    ["nowtv"],
-    ["haber"],
-    ["a haber"],
-    ["a spor"],
-    ["aspor"],
-    ["teve2"],
-    ["beyaz"],
-    ["ntvtr"],
-    ["cnn turk"],
-    ["haberturk"]
-  ];
-
-  /* =====================================================
-     HELPERS
+     YARDIMCI
   ===================================================== */
 
   function normalize(value) {
-    var s = String(value || "").toLowerCase();
+    var s = String(value || "").toLowerCase()
+      .replace(/ə/g, "e").replace(/ı/g, "i").replace(/ё/g, "е");
     try { if (s.normalize) s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); } catch (e) {}
-    return s.replace(/[^a-zа-яё0-9]/gi, "");
-  }
-
-  function channelKey(channel) {
-    return channel.country + "|" + normalize(channel.name);
+    s = s.replace(/[^a-zа-я0-9]/g, "");
+    return s.replace(/(fhd|uhd|hd|sd|4k|1080p|720p|480p|360p)$/, "");
   }
 
   function initials(name) {
-    return String(name || "")
-      .split(/\s+/)
-      .slice(0, 2)
-      .map(function (w) { return w.charAt(0) || ""; })
-      .join("")
-      .toUpperCase();
+    return String(name || "").split(/\s+/).slice(0, 2)
+      .map(function (w) { return w.charAt(0) || ""; }).join("").toUpperCase();
   }
 
-  var PRIORITY_NORM = PRIORITY.map(function (aliases) {
-    return aliases.map(normalize);
+  function groupCountry(g) {
+    g = String(g || "").toLowerCase();
+    if (g.indexOf("russia") !== -1 || g.indexOf("росси") !== -1) return "ru";
+    if (g.indexOf("belarus") !== -1 || g.indexOf("беларус") !== -1) return "by";
+    if (g.indexOf("azerbaij") !== -1 || g.indexOf("azərbay") !== -1) return "az";
+    if (g.indexOf("turk") !== -1 || g.indexOf("türk") !== -1) return "tr";
+    return "";
+  }
+
+  /* =====================================================
+     KANAL BAZASI
+  ===================================================== */
+
+  var channels = DEFS.map(function (d, i) {
+    return {
+      id: d.c + ":" + i,
+      name: d.n, country: d.c, category: d.k, logo: "",
+      urls: (d.u || []).slice(), pinned: i === 0, order: i
+    };
   });
 
-  function getPriority(channel) {
-    if (channel._prio !== undefined) return channel._prio;
-    var name = normalize(channel.name);
-    var result = 9999;
-    for (var i = 0; i < PRIORITY_NORM.length && result === 9999; i++) {
-      var aliases = PRIORITY_NORM[i];
-      for (var j = 0; j < aliases.length; j++) {
-        if (aliases[j] && name.indexOf(aliases[j]) !== -1) { result = i; break; }
-      }
-    }
-    channel._prio = result;
-    return result;
-  }
+  var aliasIndex = {};
+  DEFS.forEach(function (d, i) {
+    d.a.forEach(function (a) {
+      var key = d.c + "|" + normalize(a);
+      if (!aliasIndex[key]) aliasIndex[key] = channels[i];
+    });
+    aliasIndex[d.c + "|" + normalize(d.n)] = aliasIndex[d.c + "|" + normalize(d.n)] || channels[i];
+  });
 
-  function mapCategory(value) {
-    var text = normalize(value);
-    if (/movie|film|cinema|kino|кино|фильм/.test(text)) return "movie";
-    if (/news|новост|новин|haber|инфо/.test(text)) return "news";
-    if (/sport|спорт|football|футбол|idman/.test(text)) return "sport";
-    if (/kid|child|дет|мульт|cartoon/.test(text)) return "kids";
-    if (/music|музык|muzik/.test(text)) return "music";
-    return "other";
+  function addToChannel(ch, url, logo) {
+    if (!/^https?:\/\//i.test(url)) return;
+    if (ch.urls.indexOf(url) === -1 && ch.urls.length < 10) ch.urls.push(url);
+    if (!ch.logo && logo) ch.logo = logo;
   }
 
   /* =====================================================
@@ -539,9 +237,8 @@
   ===================================================== */
 
   function parseM3U(text, country) {
-    var result = [];
     var lines = text.split(/\r?\n/);
-    var currentInfo = null;
+    var info = null, added = 0;
 
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i].trim();
@@ -549,45 +246,35 @@
 
       if (line.indexOf("#EXTINF") === 0) {
         var comma = line.lastIndexOf(",");
-        var name = comma >= 0 ? line.substring(comma + 1).trim() : "";
-        var logo = (line.match(/tvg-logo="([^"]*)"/i) || [])[1] || "";
-        var group = (line.match(/group-title="([^"]*)"/i) || [])[1] || "";
-        var tvgId = (line.match(/tvg-id="([^"]*)"/i) || [])[1] || "";
-
-        currentInfo = {
-          name: name.replace(/\s*\[.*?\]/g, "").replace(/\s*\(.*?\)/g, "").trim(),
-          logo: logo, group: group, tvgId: tvgId
+        info = {
+          name: (comma >= 0 ? line.substring(comma + 1) : "").replace(/\s*\[.*?\]/g, "").replace(/\s*\(.*?\)/g, "").trim(),
+          logo: (line.match(/tvg-logo="([^"]*)"/i) || [])[1] || "",
+          group: (line.match(/group-title="([^"]*)"/i) || [])[1] || ""
         };
         continue;
       }
 
-      if (currentInfo && line.charAt(0) !== "#" && /^https?:\/\//i.test(line)) {
-        result.push({
-          name: currentInfo.name,
-          logo: currentInfo.logo,
-          country: country,
-          category: mapCategory(currentInfo.group + " " + currentInfo.name),
-          tvgId: currentInfo.tvgId,
-          urls: [line],
-          pinned: false
-        });
-        currentInfo = null;
+      if (line.charAt(0) === "#") continue;
+
+      if (info && /^https?:\/\//i.test(line)) {
+        var cc = country === "auto" ? groupCountry(info.group) : country;
+        if (cc) {
+          var ch = aliasIndex[cc + "|" + normalize(info.name)];
+          if (ch) { addToChannel(ch, line, info.logo); added++; }
+        }
+        info = null;
       }
     }
-    return result;
+    return added;
   }
 
   /* =====================================================
-     FETCH PLAYLISTS (XMLHttpRequest, no AbortController)
+     XHR
   ===================================================== */
 
   function httpGet(url, timeoutMs, cb) {
     var finished = false;
-    function done(err, text) {
-      if (finished) return;
-      finished = true;
-      cb(err, text);
-    }
+    function done(err, text) { if (finished) return; finished = true; cb(err, text); }
     try {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", url, true);
@@ -596,124 +283,51 @@
         if (xhr.status >= 200 && xhr.status < 300) done(null, xhr.responseText);
         else done(new Error("HTTP " + xhr.status));
       };
-      xhr.onerror = function () { done(new Error("network error")); };
+      xhr.onerror = function () { done(new Error("network")); };
       xhr.ontimeout = function () { done(new Error("timeout")); };
       xhr.send();
-    } catch (e) {
-      done(e);
-    }
+    } catch (e) { done(e); }
   }
 
   function fetchSource(source, cb) {
-    var cacheKey = "tvkino_source_" + source.id;
+    var cacheKey = "tvkino_src_" + source.id;
     var idx = 0;
 
     function useCache() {
       var cached = store.get(cacheKey, "");
       if (typeof cached === "string" && cached.indexOf("#EXTM3U") !== -1) {
-        cb(parseM3U(cached, source.country));
-      } else {
-        cb([]);
-      }
+        cb(parseM3U(cached, source.country), true);
+      } else cb(0, false);
     }
 
-    function tryNext() {
-      if (idx >= BASES.length) { useCache(); return; }
-      var url = BASES[idx++] + source.path;
-
-      httpGet(url, 18000, function (err, text) {
-        if (err || !text || text.indexOf("#EXTM3U") === -1) {
-          console.warn("TVKINO source unavailable:", source.id, err ? err.message : "invalid");
-          tryNext();
-          return;
-        }
-        store.set(cacheKey, text);
-        cb(parseM3U(text, source.country));
+    function next() {
+      if (idx >= source.urls.length) { useCache(); return; }
+      var url = source.urls[idx++];
+      httpGet(url, 15000, function (err, text) {
+        if (err || !text || text.indexOf("#EXTM3U") === -1) { next(); return; }
+        // Cox boyuk fayli yalniz lazimli hisseni saxla (storage dolmasin)
+        if (text.length < 900000) store.set(cacheKey, text);
+        cb(parseM3U(text, source.country), true);
       });
     }
-
-    tryNext();
+    next();
   }
 
   /* =====================================================
-     MERGE / SELECT
+     OYNATMA
   ===================================================== */
 
-  function mergeChannels(input) {
-    var map = {};
-    var order = [];
-
-    input.forEach(function (channel) {
-      if (!channel.name || !channel.urls || !channel.urls.length) return;
-
-      var key = channelKey(channel);
-
-      if (!map[key]) {
-        var copy = {};
-        for (var p in channel) if (Object.prototype.hasOwnProperty.call(channel, p)) copy[p] = channel[p];
-        copy.urls = channel.urls.slice();
-        map[key] = copy;
-        order.push(key);
-        return;
-      }
-
-      var existing = map[key];
-      channel.urls.forEach(function (url) {
-        if (existing.urls.indexOf(url) === -1) existing.urls.push(url);
-      });
-      if (!existing.logo && channel.logo) existing.logo = channel.logo;
-      if (existing.category === "other" && channel.category !== "other") {
-        existing.category = channel.category;
-      }
-    });
-
-    return order.map(function (k) { return map[k]; });
-  }
-
-  function selectTopChannels(input) {
-    var sorted = input.slice().sort(function (a, b) {
-      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-
-      var pa = getPriority(a), pb = getPriority(b);
-      if (pa !== pb) return pa - pb;
-
-      if (!!a.logo !== !!b.logo) return a.logo ? -1 : 1;
-      if (a.urls.length !== b.urls.length) return b.urls.length - a.urls.length;
-      return a.name.localeCompare(b.name);
-    });
-    return sorted.slice(0, MAX_CHANNELS);
-  }
-
-  /* =====================================================
-     PLAYER STATE
-  ===================================================== */
-
-  var channels = [];
-  var current = null;
-  var category = "all";
-  var query = "";
-  var hls = null;
-  var urlIndex = 0;
-  var playTimeout = null;
-  var generation = 0;
-  var currentMode = "";
-  var mediaRecovered = false;
-
-  /* =====================================================
-     STATUS
-  ===================================================== */
+  var current = null, category = "all", query = "";
+  var hls = null, urlIndex = 0, playTimeout = null, generation = 0;
+  var currentMode = "", mediaRecovered = false;
+  var ATTEMPT_TIMEOUT = 10000;
 
   function setStatus(message, state, showLoader) {
     state = state || "wait";
-
     toggleClass(el.status, "hide", !message);
     if (el.statusText) el.statusText.textContent = message || "";
     toggleClass(el.loader, "hide", !showLoader);
-
-    if (el.dot) {
-      el.dot.className = "live-dot" + (state === "err" ? " err" : state === "wait" ? " wait" : "");
-    }
-
+    if (el.dot) el.dot.className = "live-dot" + (state === "err" ? " err" : state === "wait" ? " wait" : "");
     if (el.pinfo) {
       el.pinfo.textContent =
         state === "ok" ? "Прямой эфир" :
@@ -722,19 +336,12 @@
     }
   }
 
-  /* =====================================================
-     DESTROY PLAYER
-  ===================================================== */
+  function showRetry(show) { if (el.retry) el.retry.hidden = !show; }
 
   function destroyPlayer() {
     clearTimeout(playTimeout);
     currentMode = "";
-
-    if (hls) {
-      try { hls.destroy(); } catch (e) {}
-      hls = null;
-    }
-
+    if (hls) { try { hls.destroy(); } catch (e) {} hls = null; }
     try {
       el.video.pause();
       el.video.removeAttribute("src");
@@ -742,90 +349,81 @@
     } catch (e) {}
   }
 
-  /* =====================================================
-     CAPABILITIES
-  ===================================================== */
-
   function supportsNativeHLS() {
     try {
-      return !!(
-        el.video.canPlayType("application/vnd.apple.mpegurl") ||
-        el.video.canPlayType("application/x-mpegURL")
-      );
+      return !!(el.video.canPlayType("application/vnd.apple.mpegurl") ||
+                el.video.canPlayType("application/x-mpegURL"));
     } catch (e) { return false; }
   }
+  function supportsMSE() { return !!(window.MediaSource || window.WebKitMediaSource); }
 
-  function supportsMSE() {
-    return !!(window.MediaSource || window.WebKitMediaSource);
-  }
-
-  /* =====================================================
-     ATTEMPTS: native first (TV), then hls.js, then proxies
-  ===================================================== */
-
-  function getAttempts(channel) {
-    var out = [];
-    var seen = {};
+  function getAttempts(ch) {
+    var out = [], seen = {};
     var httpsPage = location.protocol === "https:";
-    var native = supportsNativeHLS();
-    var mse = supportsMSE();
+    var native = supportsNativeHLS(), mse = supportsMSE();
 
     function add(u, p, mode) {
-      var k = mode + "|" + (p || "") + "|" + u;
+      var k = mode + "|" + p + "|" + u;
       if (seen[k]) return;
       seen[k] = true;
-      out.push({ u: u, p: p || "", mode: mode });
+      out.push({ u: u, p: p, mode: mode });
     }
 
-    (channel.urls || []).forEach(function (u) {
-      if (!/^https?:\/\//i.test(u)) return;
-
-      var isHls = u.toLowerCase().indexOf("m3u8") !== -1;
-      var blocked = httpsPage && /^http:/i.test(u);
-
-      if (!blocked) {
-        if (isHls) {
-          if (native) add(u, "", "native");
-          if (mse) add(u, "", "hlsjs");
-          if (!native && !mse) add(u, "", "native");
-        } else {
-          add(u, "", "native");
-        }
-      }
-
-      if (isHls && mse) {
-        if (PROXY) add(u, PROXY, "hlsjs");
-        if (channel.pinned || blocked) {
-          PUBLIC_PROXIES.forEach(function (p) { add(u, p, "hlsjs"); });
-        }
-      }
+    // evvelce son isleyen link, sonra https, sonra http
+    var urls = ch.urls.slice();
+    var good = okMap[ch.id];
+    urls.sort(function (a, b) {
+      var sa = (a === good ? 0 : /^https:/i.test(a) ? 1 : 2);
+      var sb = (b === good ? 0 : /^https:/i.test(b) ? 1 : 2);
+      return sa - sb;
     });
 
-    return out;
+    // 1-ci tur: birbasa
+    urls.forEach(function (u) {
+      var blocked = httpsPage && /^http:/i.test(u);
+      if (blocked) return;
+      if (native) add(u, "", "native");
+      else if (mse) add(u, "", "hlsjs");
+      else add(u, "", "native");
+    });
+
+    // 2-ci tur: hls.js (native ugursuz olsa)
+    if (native && mse) {
+      urls.forEach(function (u) {
+        if (httpsPage && /^http:/i.test(u)) return;
+        add(u, "", "hlsjs");
+      });
+    }
+
+    // 3-cu tur: proksiler
+    if (mse) {
+      urls.forEach(function (u) {
+        if (PROXY) add(u, PROXY, "hlsjs");
+        if (ch.pinned || (httpsPage && /^http:/i.test(u))) {
+          PUBLIC_PROXIES.forEach(function (p) { add(u, p, "hlsjs"); });
+        }
+      });
+    }
+
+    return out.slice(0, 14);
   }
 
-  /* =====================================================
-     HLS.JS LOADER (old TV -> 0.14.17, new -> 1.5.17)
-  ===================================================== */
-
-  var hlsLoadCallbacks = null;
-  var hlsLoading = false;
+  /* ---- hls.js yukleyici ---- */
+  var hlsCbs = null, hlsLoading = false;
 
   function loadScript(src, cb) {
-    var s = document.createElement("script");
-    var finished = false;
-    function done(ok) { if (finished) return; finished = true; cb(ok); }
-    s.onload = function () { done(!!window.Hls); };
-    s.onerror = function () { done(false); };
+    var s = document.createElement("script"), done = false;
+    function fin(ok) { if (done) return; done = true; cb(ok); }
+    s.onload = function () { fin(!!window.Hls); };
+    s.onerror = function () { fin(false); };
     s.src = src;
     document.head.appendChild(s);
   }
 
   function loadHlsLibrary(cb) {
     if (window.Hls) { cb(true); return; }
-
-    if (!hlsLoadCallbacks) hlsLoadCallbacks = [];
-    hlsLoadCallbacks.push(cb);
+    if (!hlsCbs) hlsCbs = [];
+    hlsCbs.push(cb);
     if (hlsLoading) return;
     hlsLoading = true;
 
@@ -835,49 +433,31 @@
          "https://cdnjs.cloudflare.com/ajax/libs/hls.js/0.14.17/hls.min.js"]
       : ["https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js",
          "https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.17/hls.min.js"];
-
     var i = 0;
+
+    function finish(ok) {
+      hlsLoading = false;
+      var cbs = hlsCbs; hlsCbs = null;
+      cbs.forEach(function (f) { f(ok); });
+    }
     function next() {
-      if (i >= urls.length) {
-        hlsLoading = false;
-        var cbs = hlsLoadCallbacks; hlsLoadCallbacks = null;
-        cbs.forEach(function (f) { f(false); });
-        return;
-      }
-      loadScript(urls[i++], function (ok) {
-        if (ok) {
-          hlsLoading = false;
-          var cbs2 = hlsLoadCallbacks; hlsLoadCallbacks = null;
-          cbs2.forEach(function (f) { f(true); });
-        } else {
-          next();
-        }
-      });
+      if (i >= urls.length) { finish(false); return; }
+      loadScript(urls[i++], function (ok) { if (ok) finish(true); else next(); });
     }
     next();
   }
 
-  /* =====================================================
-     PLAYBACK ERROR
-  ===================================================== */
-
-  function showRetry(show) {
-    if (el.retry) el.retry.hidden = !show;
-  }
-
-  function playbackError(message, expectedGeneration) {
+  function playbackError(message, gen) {
     if (!current) return;
-    if (expectedGeneration !== undefined && expectedGeneration !== generation) return;
+    if (gen !== undefined && gen !== generation) return;
 
     var list = getAttempts(current);
-
     if (urlIndex + 1 < list.length) {
       play(current, urlIndex + 1);
       return;
     }
-
     destroyPlayer();
-    setStatus("Не удалось открыть канал: " + message, "err", false);
+    setStatus("Канал сейчас недоступен (" + message + "). Выберите другой канал.", "err", false);
     showRetry(true);
   }
 
@@ -885,15 +465,9 @@
     var p;
     try { p = el.video.play(); } catch (e) { return; }
     if (p && p.catch) {
-      p.catch(function () {
-        setStatus("Нажмите OK, чтобы запустить трансляцию.", "wait", false);
-      });
+      p.catch(function () { setStatus("Нажмите OK, чтобы запустить трансляцию.", "wait", false); });
     }
   }
-
-  /* =====================================================
-     MAIN PLAY FUNCTION
-  ===================================================== */
 
   function play(channel, index) {
     index = index || 0;
@@ -907,32 +481,26 @@
     var attempts = getAttempts(channel);
     var attempt = attempts[index];
 
+    destroyPlayer();
+
+    if (el.now) el.now.textContent = channel.name;
+    if (el.ph) el.ph.classList.add("hide");
+    showRetry(false);
+    if (el.mos) el.mos.hidden = !/мосфильм/i.test(channel.name);
+    updateActive();
+
     if (!attempt) {
-      setStatus("Для этого канала нет подходящего адреса трансляции.", "err", false);
+      setStatus("Для этого канала нет доступного адреса.", "err", false);
       showRetry(true);
       return;
     }
 
-    var url = attempt.u;
-    var proxy = attempt.p;
-
-    destroyPlayer();
     currentMode = attempt.mode;
-
-    if (el.now) el.now.textContent = displayName(channel);
-    if (el.ph) el.ph.classList.add("hide");
-    showRetry(false);
-
-    if (el.mos) {
-      el.mos.hidden = !/mosfilm|мосфильм/i.test(channel.name);
-    }
-
-    setStatus("Загрузка канала... (" + (index + 1) + "/" + attempts.length + ")", "wait", true);
-    updateActive();
+    setStatus("Загрузка: " + channel.name + " (" + (index + 1) + "/" + attempts.length + ")", "wait", true);
 
     playTimeout = setTimeout(function () {
-      if (myGen === generation) playbackError("превышено время ожидания", myGen);
-    }, 18000);
+      if (myGen === generation) playbackError("время ожидания", myGen);
+    }, ATTEMPT_TIMEOUT);
 
     var video = el.video;
     video.autoplay = true;
@@ -943,42 +511,30 @@
     if (attempt.mode === "hlsjs") {
       loadHlsLibrary(function (ok) {
         if (myGen !== generation) return;
-
         if (!ok || !window.Hls || !window.Hls.isSupported()) {
           playbackError("HLS не поддерживается", myGen);
           return;
         }
-
         try {
           var cfg = {
-            enableWorker: false,
-            lowLatencyMode: false,
-            backBufferLength: 30,
-            maxBufferLength: 30,
-            manifestLoadingTimeOut: 15000,
-            levelLoadingTimeOut: 15000,
-            fragLoadingTimeOut: 20000,
-            manifestLoadingMaxRetry: 1,
-            levelLoadingMaxRetry: 2,
-            fragLoadingMaxRetry: 3
+            enableWorker: false, lowLatencyMode: false,
+            backBufferLength: 30, maxBufferLength: 30,
+            manifestLoadingTimeOut: 8000, levelLoadingTimeOut: 8000, fragLoadingTimeOut: 15000,
+            manifestLoadingMaxRetry: 0, levelLoadingMaxRetry: 1, fragLoadingMaxRetry: 2
           };
-
-          if (proxy) {
+          if (attempt.p) {
+            var proxy = attempt.p;
             cfg.xhrSetup = function (xhr, reqUrl) {
               xhr.open("GET", proxy + encodeURIComponent(reqUrl), true);
             };
           }
-
           hls = new window.Hls(cfg);
 
           hls.on(window.Hls.Events.MANIFEST_PARSED, function () {
-            if (myGen !== generation) return;
-            tryPlay();
+            if (myGen === generation) tryPlay();
           });
-
           hls.on(window.Hls.Events.ERROR, function (evt, data) {
             if (myGen !== generation || !data || !data.fatal) return;
-
             if (data.type === window.Hls.ErrorTypes.MEDIA_ERROR && !mediaRecovered) {
               mediaRecovered = true;
               try { hls.recoverMediaError(); return; } catch (e) {}
@@ -986,30 +542,28 @@
             playbackError("ошибка HLS", myGen);
           });
 
-          hls.loadSource(url);
+          hls.loadSource(attempt.u);
           hls.attachMedia(video);
-        } catch (error) {
-          console.error("HLS.js error:", error);
+        } catch (err) {
           playbackError("ошибка HLS", myGen);
         }
       });
       return;
     }
 
-    // Native playback (Smart TV HLS or plain video file)
-    video.src = url;
+    video.src = attempt.u;
     try { video.load(); } catch (e) {}
     tryPlay();
   }
-
-  /* =====================================================
-     VIDEO EVENTS
-  ===================================================== */
 
   el.video.addEventListener("playing", function () {
     clearTimeout(playTimeout);
     setStatus("", "ok", false);
     showRetry(false);
+    if (current) {
+      var attempts = getAttempts(current);
+      if (attempts[urlIndex]) rememberOk(current, attempts[urlIndex].u);
+    }
     updateActive();
   });
 
@@ -1018,47 +572,33 @@
   });
 
   el.video.addEventListener("error", function () {
-    // Ignore bogus errors caused by removeAttribute("src") + load()
     if (!current || currentMode !== "native") return;
     if (!el.video.getAttribute("src")) return;
     playbackError("ошибка видео", generation);
   });
 
   el.video.addEventListener("ended", function () {
-    if (current) playbackError("трансляция завершена", generation);
+    if (current) playbackError("эфир завершён", generation);
   });
 
   /* =====================================================
-     FILTERING
+     SIYAHI
   ===================================================== */
+
+  function playable(ch) { return ch.urls && ch.urls.length > 0; }
 
   function visibleChannels() {
-    return channels
-      .filter(function (channel) {
-        var categoryMatch = category === "all" || channel.category === category;
-        var searchMatch =
-          !query ||
-          channel.name.toLowerCase().indexOf(query) !== -1 ||
-          displayName(channel).toLowerCase().indexOf(query) !== -1;
-        return categoryMatch && searchMatch;
-      })
-      .sort(function (a, b) {
-        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-
-        var fa = favs[channelKey(a)] ? 1 : 0;
-        var fb = favs[channelKey(b)] ? 1 : 0;
-        if (fa !== fb) return fb - fa;
-
-        var pa = getPriority(a), pb = getPriority(b);
-        if (pa !== pb) return pa - pb;
-
-        return displayName(a).localeCompare(displayName(b), "ru");
-      });
+    return channels.filter(function (ch) {
+      if (!playable(ch)) return false;
+      var cat = category === "all" || ch.category === category;
+      var q = !query || ch.name.toLowerCase().indexOf(query) !== -1;
+      return cat && q;
+    }).sort(function (a, b) {
+      var fa = favs[a.id] ? 1 : 0, fb = favs[b.id] ? 1 : 0;
+      if (fa !== fb) return fb - fa;
+      return a.order - b.order;
+    });
   }
-
-  /* =====================================================
-     RENDER
-  ===================================================== */
 
   function updateActive() {
     each(el.list.querySelectorAll(".channel-item"), function (b) {
@@ -1066,21 +606,16 @@
     });
   }
 
-  function focusChannel(channel) {
+  function focusChannel(ch) {
     var btns = el.list.querySelectorAll(".channel-item");
     for (var i = 0; i < btns.length; i++) {
-      if (btns[i]._channel === channel) {
-        try { btns[i].focus(); } catch (e) {}
-        return;
-      }
+      if (btns[i]._channel === ch) { try { btns[i].focus(); } catch (e) {} return; }
     }
   }
 
   function render() {
     var list = visibleChannels();
-
     if (el.count) el.count.textContent = list.length;
-
     el.list.innerHTML = "";
 
     if (!list.length) {
@@ -1091,104 +626,87 @@
       return;
     }
 
-    var fragment = document.createDocumentFragment();
-    var previousGroup = "";
+    var frag = document.createDocumentFragment();
+    var prevGroup = "";
 
-    list.forEach(function (channel) {
-      var isFav = !!favs[channelKey(channel)];
-      var group = isFav ? "Избранное" : (COUNTRY[channel.country] || "Другое");
+    list.forEach(function (ch) {
+      var isFav = !!favs[ch.id];
+      var group = isFav ? "Избранное" : (COUNTRY[ch.country] || "Другое");
 
-      if (group !== previousGroup) {
-        var title = document.createElement("div");
-        title.className = "group-title";
-        title.textContent = group;
-        fragment.appendChild(title);
-        previousGroup = group;
+      if (group !== prevGroup) {
+        var t = document.createElement("div");
+        t.className = "group-title";
+        t.textContent = group;
+        frag.appendChild(t);
+        prevGroup = group;
       }
-
-      var shownName = displayName(channel);
 
       var button = document.createElement("button");
       button.type = "button";
-      button.className = "channel-item" + (current === channel ? " active" : "");
-      button._channel = channel;
+      button.className = "channel-item" + (current === ch ? " active" : "");
+      button._channel = ch;
 
       var logo;
-      if (channel.logo) {
+      if (ch.logo) {
         logo = document.createElement("img");
         logo.className = "channel-logo";
-        logo.src = channel.logo;
-        logo.alt = shownName;
-        (function (imgEl) {
-          imgEl.onerror = function () {
-            var fallback = document.createElement("div");
-            fallback.className = "channel-logo";
-            fallback.textContent = initials(shownName);
-            if (imgEl.parentNode) imgEl.parentNode.replaceChild(fallback, imgEl);
+        logo.src = ch.logo;
+        logo.alt = ch.name;
+        (function (img) {
+          img.onerror = function () {
+            var fb = document.createElement("div");
+            fb.className = "channel-logo";
+            fb.textContent = initials(ch.name);
+            if (img.parentNode) img.parentNode.replaceChild(fb, img);
           };
         })(logo);
       } else {
         logo = document.createElement("div");
         logo.className = "channel-logo";
-        logo.textContent = initials(shownName);
+        logo.textContent = initials(ch.name);
       }
 
       var meta = document.createElement("div");
       meta.className = "channel-meta";
-
       var name = document.createElement("div");
       name.className = "channel-name";
-      name.textContent = shownName;
-
+      name.textContent = ch.name;
       var sub = document.createElement("div");
       sub.className = "channel-sub";
-      sub.textContent = COUNTRY[channel.country] || "IPTV";
-
+      sub.textContent = COUNTRY[ch.country] || "IPTV";
       meta.appendChild(name);
       meta.appendChild(sub);
 
-      var favorite = document.createElement("span");
-      favorite.className = "fav-btn" + (isFav ? " on" : "");
-      favorite.setAttribute("data-favorite", "true");
-      favorite.textContent = isFav ? "★" : "☆";
+      var fav = document.createElement("span");
+      fav.className = "fav-btn" + (isFav ? " on" : "");
+      fav.setAttribute("data-favorite", "true");
+      fav.textContent = isFav ? "★" : "☆";
 
       button.appendChild(logo);
       button.appendChild(meta);
-      button.appendChild(favorite);
-      fragment.appendChild(button);
+      button.appendChild(fav);
+      frag.appendChild(button);
     });
 
-    el.list.appendChild(fragment);
+    el.list.appendChild(frag);
   }
-
-  /* =====================================================
-     CLICKS: select channel / favorite
-  ===================================================== */
 
   el.list.addEventListener("click", function (event) {
     var button = closestEl(event.target, ".channel-item");
     if (!button) return;
-
-    var channel = button._channel;
+    var ch = button._channel;
 
     if (closestEl(event.target, "[data-favorite]")) {
-      var key = channelKey(channel);
-      if (favs[key]) delete favs[key]; else favs[key] = true;
+      if (favs[ch.id]) delete favs[ch.id]; else favs[ch.id] = true;
       saveFavs();
       render();
-      focusChannel(channel);
+      focusChannel(ch);
       return;
     }
-
-    play(channel);
+    play(ch, 0);
   });
 
-  /* =====================================================
-     SEARCH
-  ===================================================== */
-
   var searchTimeout;
-
   el.search.addEventListener("input", function () {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(function () {
@@ -1197,47 +715,31 @@
     }, 150);
   });
 
-  /* =====================================================
-     CATEGORY FILTER
-  ===================================================== */
-
   var categoryFilter = document.querySelector(".category-filter");
-
   if (categoryFilter) {
     categoryFilter.addEventListener("click", function (event) {
       var button = closestEl(event.target, ".cat-btn");
       if (!button) return;
-
       each(categoryFilter.querySelectorAll(".cat-btn"), function (item) {
         toggleClass(item, "active", item === button);
       });
-
       category = button.getAttribute("data-category") || "all";
       render();
     });
   }
 
-  /* =====================================================
-     RETRY
-  ===================================================== */
-
   if (el.retry) {
-    el.retry.addEventListener("click", function () {
-      if (current) play(current, 0);
-    });
+    el.retry.addEventListener("click", function () { if (current) play(current, 0); });
   }
 
   /* =====================================================
-     SMART TV REMOTE (spatial navigation)
+     PULT
   ===================================================== */
 
-  // Tizen: register media / channel keys
   try {
     if (window.tizen && window.tizen.tvinputdevice) {
-      ["MediaPlay", "MediaPause", "MediaPlayPause", "MediaStop",
-       "ChannelUp", "ChannelDown"].forEach(function (k) {
-        try { window.tizen.tvinputdevice.registerKey(k); } catch (e) {}
-      });
+      ["MediaPlay", "MediaPause", "MediaPlayPause", "MediaStop", "ChannelUp", "ChannelDown"]
+        .forEach(function (k) { try { window.tizen.tvinputdevice.registerKey(k); } catch (e) {} });
     }
   } catch (e) {}
 
@@ -1246,47 +748,33 @@
     if (first) first.focus();
   }
 
-  function isFocusable(node) {
-    if (!node || node.disabled || node.hidden) return false;
-    if (node.offsetWidth <= 0 || node.offsetHeight <= 0) return false;
-    return true;
+  function isFocusable(n) {
+    return n && !n.disabled && !n.hidden && n.offsetWidth > 0 && n.offsetHeight > 0;
   }
 
   function moveFocus(dir) {
     var cur = document.activeElement;
     var all = Array.prototype.filter.call(
-      document.querySelectorAll("button, input, a[href], [tabindex='0']"),
-      isFocusable
-    );
-
+      document.querySelectorAll("button, input, a[href], [tabindex='0']"), isFocusable);
     if (!all.length) return false;
 
-    if (!cur || cur === document.body || all.indexOf(cur) === -1) {
-      all[0].focus();
-      return true;
-    }
+    if (!cur || cur === document.body || all.indexOf(cur) === -1) { all[0].focus(); return true; }
 
     var r = cur.getBoundingClientRect();
-    var cx = r.left + r.width / 2;
-    var cy = r.top + r.height / 2;
-
+    var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     var best = null, bestScore = Infinity;
 
     all.forEach(function (c) {
       if (c === cur) return;
       var rc = c.getBoundingClientRect();
-      var ccx = rc.left + rc.width / 2;
-      var ccy = rc.top + rc.height / 2;
-      var primary, secondary;
-
-      if (dir === "left")       { primary = cx - ccx; secondary = Math.abs(cy - ccy); }
-      else if (dir === "right") { primary = ccx - cx; secondary = Math.abs(cy - ccy); }
-      else if (dir === "up")    { primary = cy - ccy; secondary = Math.abs(cx - ccx); }
-      else                      { primary = ccy - cy; secondary = Math.abs(cx - ccx); }
-
-      if (primary <= 1) return;
-
-      var score = primary + secondary * 3;
+      var x = rc.left + rc.width / 2, y = rc.top + rc.height / 2;
+      var p, s;
+      if (dir === "left")       { p = cx - x; s = Math.abs(cy - y); }
+      else if (dir === "right") { p = x - cx; s = Math.abs(cy - y); }
+      else if (dir === "up")    { p = cy - y; s = Math.abs(cx - x); }
+      else                      { p = y - cy; s = Math.abs(cx - x); }
+      if (p <= 1) return;
+      var score = p + s * 3;
       if (score < bestScore) { bestScore = score; best = c; }
     });
 
@@ -1301,12 +789,12 @@
     return false;
   }
 
-  function zap(direction) {
+  function zap(d) {
     var list = visibleChannels();
     if (!list.length) return;
     var idx = list.indexOf(current);
-    var next = list[(idx + direction + list.length) % list.length];
-    play(next);
+    var next = list[(idx + d + list.length) % list.length];
+    play(next, 0);
     focusChannel(next);
   }
 
@@ -1314,17 +802,17 @@
     var v = el.video;
     var isFs = document.fullscreenElement || document.webkitFullscreenElement;
     try {
-      if (isFs) {
-        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-      } else {
-        (v.requestFullscreen || v.webkitRequestFullscreen || v.webkitEnterFullscreen).call(v);
-      }
+      if (isFs) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      else (v.requestFullscreen || v.webkitRequestFullscreen || v.webkitEnterFullscreen).call(v);
     } catch (e) {}
   }
 
+  function togglePause() {
+    if (el.video.paused) tryPlay(); else el.video.pause();
+  }
+
   function handleRemote(event) {
-    var key = event.key;
-    var code = event.keyCode;
+    var key = event.key, code = event.keyCode;
     var active = document.activeElement;
     var tag = active ? active.nodeName : "";
 
@@ -1333,51 +821,30 @@
     var left = key === "ArrowLeft" || code === 37;
     var right = key === "ArrowRight" || code === 39;
     var enter = key === "Enter" || code === 13;
-    var back = key === "Escape" || key === "Backspace" || code === 10009 || code === 461 || code === 27;
+    var back = key === "Escape" || code === 27 || code === 10009 || code === 461 ||
+               (key === "Backspace" && tag !== "INPUT");
 
-    // Media keys
-    if (code === 415 || code === 10252 && el.video.paused) {
-      event.preventDefault(); tryPlay(); return;
-    }
-    if (code === 19 || code === 413) {
-      event.preventDefault(); try { el.video.pause(); } catch (e) {} return;
-    }
-    if (code === 10252 || code === 179) {
-      event.preventDefault();
-      if (el.video.paused) tryPlay(); else el.video.pause();
-      return;
-    }
+    if (code === 415) { event.preventDefault(); tryPlay(); return; }
+    if (code === 19 || code === 413) { event.preventDefault(); try { el.video.pause(); } catch (e) {} return; }
+    if (code === 10252 || code === 179) { event.preventDefault(); togglePause(); return; }
     if (code === 427) { event.preventDefault(); zap(1); return; }
     if (code === 428) { event.preventDefault(); zap(-1); return; }
 
     if (key === " " && tag !== "INPUT" && tag !== "BUTTON") {
-      event.preventDefault();
-      if (el.video.paused) tryPlay(); else el.video.pause();
-      return;
+      event.preventDefault(); togglePause(); return;
     }
 
     if (back) {
       if (document.fullscreenElement || document.webkitFullscreenElement) {
         event.preventDefault(); toggleFullscreen(); return;
       }
-      if (tag === "INPUT") {
-        // let Backspace edit text; only Escape/Back leaves the field
-        if (key === "Backspace" && code !== 10009 && code !== 461) return;
-        active.blur();
-        focusFirstChannel();
-        event.preventDefault();
-      }
+      if (tag === "INPUT") { active.blur(); focusFirstChannel(); event.preventDefault(); }
       return;
     }
 
     if (enter) {
-      if (tag === "BUTTON") {
-        event.preventDefault();
-        active.click();
-      } else if (active === el.video) {
-        event.preventDefault();
-        toggleFullscreen();
-      }
+      if (tag === "BUTTON") { event.preventDefault(); active.click(); }
+      else if (active === el.video) { event.preventDefault(); toggleFullscreen(); }
       return;
     }
 
@@ -1389,7 +856,6 @@
           if (right && pos < len) return;
         } catch (e) {}
       }
-
       var dir = up ? "up" : down ? "down" : left ? "left" : "right";
       if (moveFocus(dir)) event.preventDefault();
     }
@@ -1397,17 +863,11 @@
 
   document.addEventListener("keydown", handleRemote);
 
-  /* =====================================================
-     SMART TV FOCUS STYLE
-  ===================================================== */
-
   if (IS_TV) {
     try { el.video.setAttribute("tabindex", "0"); } catch (e) {}
-
     var style = document.createElement("style");
     style.textContent =
-      ".smart-tv button:focus,.smart-tv input:focus,.smart-tv video:focus{" +
-        "outline:3px solid #e5b94d !important;outline-offset:4px;}" +
+      ".smart-tv button:focus,.smart-tv input:focus,.smart-tv video:focus{outline:3px solid #e5b94d !important;outline-offset:4px;}" +
       ".smart-tv .channel-item{min-height:70px;cursor:pointer;}" +
       ".smart-tv .channel-name{font-size:18px;}" +
       ".smart-tv .channel-logo{width:55px;height:55px;object-fit:contain;}" +
@@ -1417,59 +877,41 @@
   }
 
   /* =====================================================
-     INITIALIZE
+     START
   ===================================================== */
 
   function initialize() {
     translateStaticUI();
 
-    if (el.info) el.info.textContent = "Подключение к источникам IPTV...";
-    setStatus("Загрузка каналов...", "wait", true);
+    // Birbasa linkler olan kanallar derhal gorunur (internet siyahisi gelmese de)
+    render();
+    if (el.info) el.info.textContent = "Загрузка списков каналов...";
+    setStatus("", "ok", false);
+    if (IS_TV) setTimeout(focusFirstChannel, 800);
 
-    var results = new Array(SOURCES.length);
-    var pending = SOURCES.length;
+    var pending = SOURCES.length, loaded = 0;
 
-    SOURCES.forEach(function (source, i) {
-      fetchSource(source, function (list) {
-        results[i] = list || [];
+    SOURCES.forEach(function (source) {
+      fetchSource(source, function (added, ok) {
+        if (ok) loaded++;
         pending--;
-        if (pending === 0) finish();
+        render();
+        if (current) updateActive();
+        if (pending === 0) {
+          var n = channels.filter(playable).length;
+          if (el.info) {
+            el.info.textContent = "Каналов: " + n + " | Списков загружено: " + loaded + "/" + SOURCES.length +
+              (loaded === 0 ? " (нет доступа к интернету или GitHub)" : "");
+          }
+        }
       });
     });
-
-    function finish() {
-      try {
-        var parsed = [].concat.apply([], results).filter(function (c) {
-          return !/мосфильм|mosfilm/i.test(c.name);
-        });
-
-        channels = mergeChannels(MOSFILM.concat(parsed));
-        channels = selectTopChannels(channels);
-
-        if (el.info) {
-          el.info.textContent = "Загружено каналов: " + channels.length + " / " + MAX_CHANNELS;
-        }
-
-        render();
-        setStatus("", "ok", false);
-        translateStaticUI();
-
-        if (IS_TV) setTimeout(focusFirstChannel, 1000);
-      } catch (error) {
-        console.error("TVKINO initialization error:", error);
-        if (el.info) el.info.textContent = "Не удалось загрузить каналы.";
-        setStatus("Плейлист не загружен.", "err", false);
-      }
-    }
   }
 
   initialize();
 
   } // end boot
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
 })();
