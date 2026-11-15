@@ -4,11 +4,9 @@
    TV KINO - CONFIGURATION
 ============================================ */
 
-// iptv-org rəsmi API (kanal + yayım bazası)
 const API_CHANNELS = "https://iptv-org.github.io/api/channels.json";
 const API_STREAMS  = "https://iptv-org.github.io/api/streams.json";
 
-// API işləməzsə ehtiyat .m3u siyahıları
 const PLAYLISTS = [
     { name: "Russia",     country: "RU", url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
     { name: "Azerbaijan", country: "AZ", url: "https://iptv-org.github.io/iptv/countries/az.m3u" },
@@ -16,16 +14,13 @@ const PLAYLISTS = [
 ];
 
 /*
-    Öz HTTPS proxy-niz (Cloudflare Worker, VPS və s.)
-    Format: "https://sizin-worker.workers.dev/?url="
-    Region bloku üçün Rusiya IP-li proxy lazımdır.
+    Öz HTTPS proxy-ləriniz (VPS, Worker və s.). Format:
+    ["https://proxy.sizin-domen.com/?url="]
+    http://IP yayımlar və region bloku üçün əsas həll budur.
 */
-const OWN_PROXY = "";
+const OWN_PROXIES = [];
 
-/*
-    Ortaq (pulsuz) CORS proxy-lər — son ehtiyat. Etibarsız ola bilər.
-    İstəmirsinizsə USE_PUBLIC_PROXIES = false edin.
-*/
+// Ortaq pulsuz proxy-lər — son ehtiyat, etibarsızdır
 const USE_PUBLIC_PROXIES = true;
 
 const PUBLIC_PROXIES = [
@@ -33,7 +28,6 @@ const PUBLIC_PROXIES = [
     { name: "allorigins", build: u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u) }
 ];
 
-// Əl ilə işləyən linklər (kanal id-sinə görə)
 const EXTRA_STREAMS = {
     mosfilm: [
         "https://fs.uplink.kz/mosfilm/mono.m3u8?token=onlinetv",
@@ -55,7 +49,6 @@ const EXTRA_STREAMS = {
 
 /* ============================================
    DESIRED CHANNELS
-   countries: yalnız həmin ölkənin kanalları qəbul edilir
 ============================================ */
 
 const CHANNEL_DEFINITIONS = [
@@ -206,6 +199,11 @@ const retryButton = document.getElementById("retryButton");
 const mosfilmLink = document.getElementById("mosfilmLink");
 const connectionDot = document.getElementById("connectionDot");
 
+// "Yalnız işləyən kanallar" checkbox-u (id: workingOnly, yoxdursa səhifədəki ilk checkbox)
+const workingOnlyInput =
+    document.getElementById("workingOnly") ||
+    document.querySelector('input[type="checkbox"]');
+
 
 /* ============================================
    STATE
@@ -220,6 +218,7 @@ let currentSource = null;
 
 let currentCategory = "all";
 let currentSearch = "";
+let workingOnly = false;
 
 let playbackId = 0;
 let sourcePosition = 0;
@@ -229,10 +228,10 @@ let startupTimer = null;
 const START_TIMEOUT = 9000;
 const MAX_URLS_PER_CHANNEL = 10;
 const PROXY_URL_LIMIT = 4;
+const FAIL_TTL = 6 * 60 * 60 * 1000; // uğursuz kanal 6 saat gizlənir
 
 const IS_HTTPS = location.protocol === "https:";
 
-// Kanal adı uyğunluğu üçün əvvəlcədən normallaşdırılmış aliaslar
 let DEF_INDEX = [];
 
 
@@ -298,7 +297,6 @@ function upgradeToHttps(url) {
     return url.replace(/^http:\/\//i, "https://");
 }
 
-// IP ünvanlı hostlara SSL sertifikatı verilmir — https cəhdi mənasızdır
 function isIpHost(url) {
     try {
         return /^\d{1,3}(\.\d{1,3}){3}$/.test(new URL(url).hostname);
@@ -308,20 +306,19 @@ function isIpHost(url) {
 }
 
 function isProxyMode(mode) {
-    return mode === "own" || mode.startsWith("pub");
+    return mode.startsWith("own") || mode.startsWith("pub");
 }
 
 function modeLabel(mode) {
     if (mode === "direct") return "birbaşa";
     if (mode === "upgrade") return "https";
-    if (mode === "own") return "öz proxy";
+    if (mode.startsWith("own")) return "öz proxy";
     return "ortaq proxy";
 }
 
-// Hər rejim üçün sorğu ünvanını hazırla
 function transformUrl(mode, url) {
-    if (mode === "own") {
-        return OWN_PROXY + encodeURIComponent(url);
+    if (mode.startsWith("own")) {
+        return OWN_PROXIES[Number(mode.slice(3))] + encodeURIComponent(url);
     }
 
     if (mode.startsWith("pub")) {
@@ -335,13 +332,40 @@ function transformUrl(mode, url) {
     return url;
 }
 
-// localStorage (bəzi brauzerlərdə bloklana bilər)
 function storageGet(key) {
     try { return localStorage.getItem(key); } catch (e) { return null; }
 }
 
 function storageSet(key, value) {
     try { localStorage.setItem(key, value); } catch (e) { /* ignore */ }
+}
+
+function storageRemove(key) {
+    try { localStorage.removeItem(key); } catch (e) { /* ignore */ }
+}
+
+function markFailed(channel) {
+    storageSet("tvkino:fail:" + channel.id, String(Date.now()));
+}
+
+function markWorking(channel) {
+    storageRemove("tvkino:fail:" + channel.id);
+}
+
+function recentlyFailed(channel) {
+    const value = Number(storageGet("tvkino:fail:" + channel.id));
+    return value > 0 && Date.now() - value < FAIL_TTL;
+}
+
+// Proxy-siz oynada açıla bilən ünvan varmı?
+function hasDirectPlayable(channel) {
+    return channel.urls.some(
+        url => !IS_HTTPS || !isHttpUrl(url) || !isIpHost(url)
+    );
+}
+
+function hasOwnProxy() {
+    return OWN_PROXIES.length > 0;
 }
 
 async function fetchWithTimeout(url, ms, asJson) {
@@ -368,8 +392,6 @@ async function fetchWithTimeout(url, ms, asJson) {
 
 /* ============================================
    NAME MATCHING
-   score: 0 = dəqiq ad, 1 = ad ilə başlayır (regional ola bilər),
-          2 = içində var. +10 = geo-blocked işarəsi
 ============================================ */
 
 function buildDefIndex() {
@@ -379,7 +401,6 @@ function buildDefIndex() {
     }));
 }
 
-// (1080p), [Geo-blocked] kimi texniki teqləri sil, qalan mötərizələri saxla
 function stripTags(name) {
     return String(name || "").replace(/[\(\[]([^\)\]]*)[\)\]]/g, (full, inner) =>
         /(\d{3,4}p|geo.?block|not 24\/7|backup)/i.test(inner) ? " " : full
@@ -487,7 +508,6 @@ async function downloadPlaylist(source) {
 
 /* ============================================
    IPTV-ORG API
-   channels.json + streams.json -> kanal ünvanları
 ============================================ */
 
 async function loadApiCandidates() {
@@ -496,7 +516,6 @@ async function loadApiCandidates() {
         fetchWithTimeout(API_STREAMS, 30000, true)
     ]);
 
-    // channelId -> { definition, score }
     const matched = new Map();
 
     for (const ch of apiChannels) {
@@ -574,7 +593,6 @@ function buildChannels(m3uEntries, apiEntries) {
         const match = matchName(entry.name + " " + entry.group, entry.country);
         if (!match) continue;
 
-        // Ad və qrup birlikdə qarışmasın deyə əvvəl yalnız ad ilə də yoxla
         const nameOnly = matchName(entry.name, entry.country);
         const final = nameOnly && nameOnly.score <= match.score ? nameOnly : match;
 
@@ -587,11 +605,9 @@ function buildChannels(m3uEntries, apiEntries) {
     }
 
     for (const channel of result) {
-        // Dəqiq uyğunluq varsa onu saxla, yoxdursa regional/qismən olanları
         const exact = channel.candidates.filter(c => c.score % 10 === 0);
         const list = exact.length ? exact : channel.candidates;
 
-        // uyğunluq -> https əvvəl -> yüksək keyfiyyət
         list.sort((a, b) => {
             if (a.score !== b.score) return a.score - b.score;
 
@@ -625,10 +641,6 @@ function buildChannels(m3uEntries, apiEntries) {
 
 /* ============================================
    BUILD PLAY SOURCES
-   1) birbaşa / https variantı
-   2) öz proxy
-   3) ortaq proxy-lər
-   Son işləyən mənbə (localStorage) ən əvvələ keçir
 ============================================ */
 
 function buildPlaySources(channel) {
@@ -643,7 +655,7 @@ function buildPlaySources(channel) {
         sources.push({ url, mode });
     }
 
-    // 1-ci mərhələ: proxy-siz
+    // 1) proxy-siz
     for (const url of channel.urls) {
         if (!IS_HTTPS || !isHttpUrl(url)) {
             add(url, "direct");
@@ -652,16 +664,19 @@ function buildPlaySources(channel) {
         }
     }
 
-    // 2-ci mərhələ: proxy
+    // 2) öz proxy-ləriniz əvvəl, sonra ortaq proxy-lər
     const proxyModes = [];
 
-    if (OWN_PROXY) proxyModes.push("own");
+    OWN_PROXIES.forEach((_, i) => proxyModes.push("own" + i));
 
     if (USE_PUBLIC_PROXIES) {
         PUBLIC_PROXIES.forEach((_, i) => proxyModes.push("pub" + i));
     }
 
-    for (const url of channel.urls.slice(0, PROXY_URL_LIMIT)) {
+    // Öz proxy varsa, http IP ünvanlar proxy ilə birinci sınansın
+    const proxyUrls = channel.urls.slice(0, hasOwnProxy() ? MAX_URLS_PER_CHANNEL : PROXY_URL_LIMIT);
+
+    for (const url of proxyUrls) {
         for (const mode of proxyModes) {
             add(url, mode);
         }
@@ -763,7 +778,16 @@ function renderChannels() {
         const searchMatch =
             normalize(channel.name).includes(normalize(currentSearch));
 
-        return categoryMatch && searchMatch;
+        let workingMatch = true;
+
+        if (workingOnly) {
+            workingMatch =
+                channel.urls.length > 0 &&
+                !recentlyFailed(channel) &&
+                (hasDirectPlayable(channel) || hasOwnProxy());
+        }
+
+        return categoryMatch && searchMatch && workingMatch;
     });
 
     channelCount.textContent = filtered.length;
@@ -789,7 +813,9 @@ function renderChannels() {
             button.classList.add("active");
         }
 
-        if (!channel.urls.length) {
+        const direct = hasDirectPlayable(channel);
+
+        if (!channel.urls.length || (!direct && !hasOwnProxy())) {
             button.classList.add("channel-unavailable");
         }
 
@@ -800,9 +826,13 @@ function renderChannels() {
         const details = document.createElement("span");
         details.className = "channel-country";
 
-        details.textContent = channel.urls.length
-            ? `${channel.urls.length} yayım ünvanı`
-            : "Yayım ünvanı tapılmadı";
+        if (!channel.urls.length) {
+            details.textContent = "Yayım ünvanı tapılmadı";
+        } else if (!direct && !hasOwnProxy()) {
+            details.textContent = `${channel.urls.length} ünvan · HTTPS proxy lazımdır`;
+        } else {
+            details.textContent = `${channel.urls.length} yayım ünvanı`;
+        }
 
         name.appendChild(details);
         button.appendChild(name);
@@ -880,7 +910,6 @@ function startNextSource(session) {
     const source = currentSources[sourcePosition];
     const hlsJsSupported = typeof Hls !== "undefined" && Hls.isSupported();
 
-    // Native HLS seqmentləri dəyişə bilmir — proxy rejimləri yalnız hls.js ilə işləyir
     if (!hlsJsSupported && isProxyMode(source.mode)) {
         sourcePosition++;
         startNextSource(session);
@@ -924,9 +953,6 @@ function startNextSource(session) {
 
 /* ============================================
    HLS.JS
-   Xüsusi loader: manifest + bütün seqment sorğularını
-   seçilmiş rejimə görə yönləndirir və cavabın "url"-ini
-   orijinal ünvana qaytarır (nisbi linklər düzgün açılsın deyə).
 ============================================ */
 
 function createLoader(mode) {
@@ -1088,7 +1114,8 @@ video.addEventListener("playing", () => {
     if (currentChannel) {
         setInfo("Playing: " + currentChannel.name);
 
-        // İşləyən mənbəni yadda saxla
+        markWorking(currentChannel);
+
         if (currentSource) {
             storageSet(
                 "tvkino:last:" + currentChannel.id,
@@ -1115,23 +1142,35 @@ function showUnavailable(session) {
     clearTimers();
     destroyHls();
 
-    const hasUrls = currentChannel && currentChannel.urls.length > 0;
+    const channel = currentChannel;
+    const hasUrls = channel && channel.urls.length > 0;
 
-    showStatus(
-        hasUrls
-            ? "Bütün ünvanlar sınandı, açılmadı (region bloku, CORS və ya ölü yayım ola bilər). Yenidən cəhd edin."
-            : "Bu kanal üçün yayım ünvanı tapılmadı.",
-        "error"
-    );
+    let message;
+
+    if (!hasUrls) {
+        message = "Bu kanal üçün yayım ünvanı tapılmadı.";
+    } else if (!hasDirectPlayable(channel) && !hasOwnProxy()) {
+        message = "Bu kanalın yayımları yalnız http://IP formatındadır. HTTPS saytda açılması üçün HTTPS proxy lazımdır (OWN_PROXIES).";
+    } else {
+        message = "Bütün ünvanlar sınandı, açılmadı (region bloku, CORS və ya ölü yayım ola bilər).";
+    }
+
+    showStatus(message, "error");
 
     setConnected(false);
     setInfo("Stream unavailable");
 
     retryButton.hidden = false;
 
-    if (currentChannel && currentChannel.id === "mosfilm") {
-        mosfilmLink.hidden = false;
+    if (channel) {
+        markFailed(channel);
+
+        if (channel.id === "mosfilm") {
+            mosfilmLink.hidden = false;
+        }
     }
+
+    if (workingOnly) renderChannels();
 }
 
 
@@ -1141,8 +1180,8 @@ function showUnavailable(session) {
 
 retryButton.addEventListener("click", () => {
     if (currentChannel) {
-        // Yadda saxlanmış (işləməyən ola biləcək) mənbəni təmizlə
-        try { localStorage.removeItem("tvkino:last:" + currentChannel.id); } catch (e) { /* ignore */ }
+        storageRemove("tvkino:last:" + currentChannel.id);
+        markWorking(currentChannel);
 
         playChannel(currentChannel);
     }
@@ -1169,13 +1208,22 @@ document.querySelectorAll(".cat-btn").forEach(button => {
 
 
 /* ============================================
-   SEARCH
+   SEARCH + WORKING-ONLY FILTER
 ============================================ */
 
 searchInput.addEventListener("input", () => {
     currentSearch = searchInput.value.trim();
     renderChannels();
 });
+
+if (workingOnlyInput) {
+    workingOnly = workingOnlyInput.checked;
+
+    workingOnlyInput.addEventListener("change", () => {
+        workingOnly = workingOnlyInput.checked;
+        renderChannels();
+    });
+}
 
 
 /* ============================================
