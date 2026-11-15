@@ -12,7 +12,7 @@ const PLAYLISTS = [
 
 /*
     PROXY_URL — GitHub Pages (https) üzərində http:// yayımlar üçün ehtiyat yol.
-    Məsələn: "https://sizin-worker.workers.dev/?url="
+    Məsələn: "https://sizin-proxy.example.com/?url="
     Boş saxlasanız proxy istifadə olunmur.
 */
 const PROXY_URL = "";
@@ -262,6 +262,15 @@ function upgradeToHttps(url) {
     return url.replace(/^http:\/\//i, "https://");
 }
 
+// IP ünvanlı hostlar üçün SSL sertifikatı olmur, https cəhdi mənasızdır
+function isIpHost(url) {
+    try {
+        return /^\d{1,3}(\.\d{1,3}){3}$/.test(new URL(url).hostname);
+    } catch {
+        return false;
+    }
+}
+
 function proxify(url) {
     return PROXY_URL + encodeURIComponent(url);
 }
@@ -450,7 +459,7 @@ function buildChannels(entries) {
 /* ============================================
    BUILD PLAY SOURCES
    https səhifədə http:// ünvanlar üçün:
-     1) https:// variantı (loader seqmentləri də çevirir)
+     1) https:// variantı (yalnız domenli ünvanlar, IP deyil)
      2) PROXY_URL varsa, proxy ilə orijinal ünvan
 ============================================ */
 
@@ -465,17 +474,17 @@ function buildPlaySources(channel) {
         sources.push({ url, mode });
     }
 
-    // Əvvəlcə birbaşa işləyən (https) ünvanlar
+    // Əvvəlcə birbaşa işləyən ünvanlar
     for (const url of channel.urls) {
         if (!IS_HTTPS || !isHttpUrl(url)) {
             add(url, "direct");
         }
     }
 
-    // Sonra http ünvanların https variantı (yalnız https səhifədə)
+    // Sonra http ünvanların https variantı (yalnız https səhifədə, IP olmayanlar)
     if (IS_HTTPS) {
         for (const url of channel.urls) {
-            if (isHttpUrl(url)) {
+            if (isHttpUrl(url) && !isIpHost(url)) {
                 add(upgradeToHttps(url), "upgrade");
             }
         }
@@ -535,7 +544,9 @@ async function loadChannels() {
 
     channels = buildChannels(entries);
 
-    const available = channels.filter(c => c.urls.length > 0).length;
+    const available = channels.filter(
+        c => buildPlaySources(c).length > 0
+    ).length;
 
     sourceInfo.textContent =
         `${successful}/${PLAYLISTS.length} playlist · ${available} kanal mənbə tapdı`;
@@ -583,11 +594,13 @@ function renderChannels() {
         button.className = "channel-item";
         button.type = "button";
 
+        const playable = buildPlaySources(channel).length;
+
         if (currentChannel?.id === channel.id) {
             button.classList.add("active");
         }
 
-        if (!channel.urls.length) {
+        if (!playable) {
             button.classList.add("channel-unavailable");
         }
 
@@ -598,9 +611,13 @@ function renderChannels() {
         const details = document.createElement("span");
         details.className = "channel-country";
 
-        details.textContent = channel.urls.length
-            ? `${channel.urls.length} yayım ünvanı`
-            : "Yayım ünvanı tapılmadı";
+        if (playable) {
+            details.textContent = `${playable} yayım ünvanı`;
+        } else if (channel.urls.length) {
+            details.textContent = "Yalnız http ünvan (HTTPS-də açılmır)";
+        } else {
+            details.textContent = "Yayım ünvanı tapılmadı";
+        }
 
         name.appendChild(details);
         button.appendChild(name);
@@ -727,7 +744,7 @@ function createLoader(mode) {
                 context.url = upgradeToHttps(context.url);
             } else if (mode === "proxy") {
                 context.url = proxify(context.url);
-            } else if (IS_HTTPS && isHttpUrl(context.url)) {
+            } else if (IS_HTTPS && isHttpUrl(context.url) && !isIpHost(context.url)) {
                 // direct rejimdə belə, içəridən gələn http:// seqmentləri düzəlt
                 context.url = upgradeToHttps(context.url);
             }
