@@ -165,12 +165,12 @@ button {
 }
 
 .channel-list::-webkit-scrollbar {
-    width: 6px
+    width: 35px;
 }
 
 .channel-list::-webkit-scrollbar-thumb {
     background: var(--line);
-    border-radius: 6px
+    border-radius: 6px;
 }
 
 .list-loading,
