@@ -2,7 +2,7 @@
   "use strict";
 
   /* =====================================================
-     TVKINO - SMART TV IPTV PLAYER
+     TVKINO - SMART TV IPTV PLAYER (всё на русском)
      Samsung Tizen / LG webOS / Android TV / Browser
   ===================================================== */
 
@@ -32,6 +32,62 @@
     ua: "Украина"
   };
 
+  const CATEGORY_RU = {
+    all: "Все",
+    movie: "Кино",
+    news: "Новости",
+    sport: "Спорт",
+    kids: "Детские",
+    music: "Музыка",
+    other: "Другие"
+  };
+
+  // Static texts that may exist in index.html (exact match, case-insensitive) -> Russian
+  const STATIC_RU = {
+    "ready to watch": "Готово к просмотру",
+    "canlı yayım": "Прямой эфир",
+    "canli yayim": "Прямой эфир",
+    "yüklənir...": "Загрузка...",
+    "xəta": "Ошибка",
+    "kanallar": "Каналы",
+    "kanal": "Канал",
+    "channels": "Каналы",
+    "channel": "Канал",
+    "live tv": "Прямой эфир",
+    "canlı tv": "Прямой эфир",
+    "kanal axtar": "Поиск канала",
+    "search": "Поиск",
+    "search channels": "Поиск каналов",
+    "hamısı": "Все",
+    "all": "Все",
+    "filmlər": "Кино",
+    "movies": "Кино",
+    "xəbərlər": "Новости",
+    "news": "Новости",
+    "idman": "Спорт",
+    "sport": "Спорт",
+    "sports": "Спорт",
+    "uşaq": "Детские",
+    "kids": "Детские",
+    "musiqi": "Музыка",
+    "music": "Музыка",
+    "digər": "Другие",
+    "other": "Другие",
+    "yenidən cəhd et": "Повторить",
+    "retry": "Повторить",
+    "try again": "Повторить",
+    "kanal seçin": "Выберите канал",
+    "select a channel": "Выберите канал",
+    "choose a channel": "Выберите канал",
+    "sevimlilər": "Избранное",
+    "favorites": "Избранное",
+    "mosfilm": "Мосфильм",
+    "loading": "Загрузка",
+    "loading...": "Загрузка...",
+    "now playing": "Сейчас в эфире",
+    "playback error": "Ошибка воспроизведения"
+  };
+
   const $ = id => document.getElementById(id);
 
   const el = {
@@ -54,6 +110,266 @@
   if (!el.list || !el.video || !el.search) {
     console.error("TVKINO: Required HTML elements were not found.");
     return;
+  }
+
+  /* =====================================================
+     RUSSIAN UI (page language, title, static texts)
+  ===================================================== */
+
+  function translateStaticUI() {
+    try {
+      document.documentElement.setAttribute("lang", "ru");
+      document.title = "ТВКИНО — Прямой эфир";
+
+      // Category buttons
+      Array.prototype.forEach.call(document.querySelectorAll(".cat-btn"), btn => {
+        const c = btn.getAttribute("data-category");
+        if (c && CATEGORY_RU[c]) btn.textContent = CATEGORY_RU[c];
+      });
+
+      // Search placeholder
+      el.search.setAttribute("placeholder", "Поиск канала...");
+
+      // Retry button text
+      if (el.retry && !el.retry.children.length) {
+        el.retry.textContent = "Повторить";
+      }
+
+      // Walk all text nodes and translate known phrases
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      const nodes = [];
+      let n;
+      while ((n = walker.nextNode())) nodes.push(n);
+
+      nodes.forEach(node => {
+        const parent = node.parentNode;
+        if (!parent) return;
+        const tag = parent.nodeName;
+        if (tag === "SCRIPT" || tag === "STYLE") return;
+        const raw = node.nodeValue || "";
+        const key = raw.trim().toLowerCase();
+        if (key && STATIC_RU[key]) {
+          node.nodeValue = raw.replace(raw.trim(), STATIC_RU[key]);
+        }
+      });
+
+      // Title / placeholder / aria attributes
+      Array.prototype.forEach.call(
+        document.querySelectorAll("[placeholder],[title],[aria-label]"),
+        node => {
+          ["placeholder", "title", "aria-label"].forEach(attr => {
+            const v = node.getAttribute(attr);
+            if (!v) return;
+            const t = STATIC_RU[v.trim().toLowerCase()];
+            if (t) node.setAttribute(attr, t);
+          });
+        }
+      );
+    } catch (e) {}
+  }
+
+  /* =====================================================
+     CHANNEL NAMES -> RUSSIAN (dictionary + transliteration)
+  ===================================================== */
+
+  const NAME_RU = {
+    "mosfilm": "Мосфильм",
+    "euronews": "Евроньюс",
+    "cnn": "Си-эн-эн",
+    "cnn turk": "Си-эн-эн Тюрк",
+    "cnn international": "Си-эн-эн Интернешнл",
+    "bbc": "Би-би-си",
+    "bbc news": "Би-би-си Ньюс",
+    "bbc world news": "Би-би-си Ворлд Ньюс",
+    "trt 1": "ТРТ 1",
+    "trt1": "ТРТ 1",
+    "trt haber": "ТРТ Хабер",
+    "trt world": "ТРТ Ворлд",
+    "trt spor": "ТРТ Спор",
+    "trt cocuk": "ТРТ Чоджук",
+    "atv": "АТВ",
+    "atv avrupa": "АТВ Авруп��",
+    "show tv": "Шоу ТВ",
+    "star tv": "Стар ТВ",
+    "kanal d": "Канал Д",
+    "fox": "Фокс",
+    "fox tv": "Фокс ТВ",
+    "now tv": "Нау ТВ",
+    "tv8": "ТВ8",
+    "tv 8": "ТВ8",
+    "a haber": "А Хабер",
+    "a spor": "А Спор",
+    "a para": "А Пара",
+    "haberturk": "Хабертюрк",
+    "haber turk": "Хабертюрк",
+    "ntv": "НТВ",
+    "teve2": "Теве2",
+    "beyaz tv": "Бейаз ТВ",
+    "ht spor": "ХТ Спор",
+    "htspor tv": "ХТ Спор ТВ",
+    "bein sports": "Бин Спортс",
+    "idman tv": "Идман ТВ",
+    "idman": "Идман ТВ",
+    "cbc sport": "Си-би-си Спорт",
+    "cbc": "Си-би-си",
+    "space tv": "Спейс ТВ",
+    "azad azerbaycan": "Азад Азербайджан",
+    "azad azərbaycan": "Азад Азербайджан",
+    "azad azerbaijan": "Азад Азербайджан",
+    "azerbaijan tv": "Азербайджан ТВ",
+    "aztv": "АзТВ",
+    "az tv": "АзТВ",
+    "xezer tv": "Хазар ТВ",
+    "xəzər tv": "Хазар ТВ",
+    "ictimai tv": "Общественное ТВ Азербайджана",
+    "ictimai": "Ичтимаи ТВ",
+    "arb": "АРБ",
+    "arb 24": "АРБ 24",
+    "lider tv": "Лидер ТВ",
+    "baku tv": "Баку ТВ",
+    "medeniyyet tv": "Медениййят ТВ",
+    "mədəniyyət tv": "Медениййят ТВ",
+    "disney channel": "Дисней Ченнел",
+    "cartoon network": "Картун Нетворк",
+    "nickelodeon": "Никелодеон",
+    "nick jr": "Ник Джуниор",
+    "eurosport": "Евроспорт",
+    "eurosport 1": "Евроспорт 1",
+    "eurosport 2": "Евроспорт 2",
+    "setanta sports": "Сетанта Спортс",
+    "rt": "РТ",
+    "rt news": "РТ Ньюс",
+    "rtvi": "РТВИ",
+    "cgtn": "СиДжиТиЭн",
+    "france 24": "Франс 24",
+    "dw": "Дойче Велле",
+    "dw tv": "Дойче Велле",
+    "sky news": "Скай Ньюс",
+    "al jazeera": "Аль-Джазира",
+    "music box": "Мьюзик Бокс",
+    "musicbox": "Мьюзик Бокс",
+    "bridge tv": "Бридж ТВ",
+    "ru tv": "Ру ТВ",
+    "muz tv": "Муз ТВ",
+    "tnt": "ТНТ",
+    "sts": "СТС",
+    "ctc": "СТС",
+    "ren tv": "РЕН ТВ",
+    "tvc": "ТВЦ",
+    "tv3": "ТВ-3",
+    "tv-3": "ТВ-3",
+    "hbo": "Эйч-би-оу",
+    "1tv": "Первый канал",
+    "channel one": "Первый канал",
+    "channel one russia": "Первый канал",
+    "russia 1": "Россия 1",
+    "russia 24": "Россия 24",
+    "russia k": "Россия К",
+    "belarus 1": "Беларусь 1",
+    "belarus 24": "Беларусь 24",
+    "belarus 2": "Беларусь 2",
+    "belarus 3": "Беларусь 3",
+    "belarus 5": "Беларусь 5",
+    "ont": "ОНТ",
+    "stv": "СТВ",
+    "inter": "Интер",
+    "1+1": "1+1",
+    "ictv": "ICTV",
+    "stb": "СТБ",
+    "novyi kanal": "Новый канал",
+    "5 kanal": "5 канал",
+    "5 channel": "5 канал",
+    "mir": "Мир",
+    "mir 24": "Мир 24",
+    "zvezda": "Звезда",
+    "pobeda": "Победа",
+    "karusel": "Карусель",
+    "pyatnitsa": "Пятница",
+    "domashniy": "Домашний",
+    "spas": "Спас",
+    "otr": "ОТР",
+    "match tv": "Матч ТВ"
+  };
+
+  const TR_MULTI = [
+    ["shch", "щ"], ["sch", "щ"], ["sh", "ш"], ["ch", "ч"], ["zh", "ж"],
+    ["kh", "х"], ["ts", "ц"], ["yu", "ю"], ["ya", "я"], ["yo", "ё"],
+    ["ph", "ф"], ["th", "т"], ["ck", "к"], ["oo", "у"], ["ee", "и"], ["ou", "у"]
+  ];
+
+  const TR_SINGLE = {
+    a: "а", b: "б", c: "к", d: "д", e: "е", f: "ф", g: "г", h: "х", i: "и",
+    j: "дж", k: "к", l: "л", m: "м", n: "н", o: "о", p: "п", q: "к", r: "р",
+    s: "с", t: "т", u: "у", v: "в", w: "в", x: "кс", y: "й", z: "з",
+    "ç": "ч", "ş": "ш", "ğ": "г", "ı": "ы", "ö": "о", "ü": "ю", "ə": "э",
+    "é": "е", "è": "е", "à": "а", "â": "а", "î": "и", "ô": "о", "û": "у",
+    "ñ": "нь", "ä": "э", "ß": "сс"
+  };
+
+  function translitWord(word) {
+    let src = word.toLowerCase().replace(/i̇/g, "i");
+    let out = "";
+    let i = 0;
+
+    while (i < src.length) {
+      let matched = false;
+
+      for (let m = 0; m < TR_MULTI.length; m++) {
+        const pair = TR_MULTI[m];
+        if (src.substr(i, pair[0].length) === pair[0]) {
+          out += pair[1];
+          i += pair[0].length;
+          matched = true;
+          break;
+        }
+      }
+
+      if (matched) continue;
+
+      const ch = src.charAt(i);
+      out += TR_SINGLE[ch] !== undefined ? TR_SINGLE[ch] : ch;
+      i++;
+    }
+
+    const letters = word.replace(/[^A-Za-zÇŞĞİÖÜƏçşğıöüə]/g, "");
+    const allUpper = letters.length >= 2 && letters === letters.toUpperCase();
+
+    if (allUpper) return out.toUpperCase();
+
+    const first = word.charAt(0);
+    if (first && first !== first.toLowerCase()) {
+      return out.charAt(0).toUpperCase() + out.slice(1);
+    }
+
+    return out;
+  }
+
+  function toRussianName(name) {
+    const base = String(name || "").trim();
+
+    if (!base) return base;
+
+    const key = base.toLowerCase().replace(/\s+/g, " ");
+    const stripped = key.replace(/\b(hd|sd|fhd|uhd)\b/g, "").replace(/\s+/g, " ").trim();
+
+    if (NAME_RU[key]) return NAME_RU[key];
+    if (NAME_RU[stripped]) return NAME_RU[stripped] + (/\bhd\b/i.test(key) ? " HD" : "");
+
+    // Already Cyrillic: keep as is
+    if (/[\u0400-\u04FF]/.test(base)) return base;
+
+    // Transliterate word by word, keep digits and symbols
+    return base.split(/(\s+)/).map(part => {
+      if (!part.trim()) return part;
+      if (/^(hd|sd|fhd|uhd)$/i.test(part)) return part.toUpperCase();
+      if (!/[A-Za-zÇŞĞİÖÜƏçşğıöüəéèàâîôûñäß]/.test(part)) return part;
+      return part.replace(/[A-Za-zÇŞĞİÖÜƏçşğıöüəéèàâîôûñäß]+/g, w => translitWord(w));
+    }).join("");
+  }
+
+  function displayName(channel) {
+    if (!channel._ru) channel._ru = toRussianName(channel.name);
+    return channel._ru;
   }
 
   /* =====================================================
@@ -607,8 +923,6 @@
 
   /* =====================================================
      ATTEMPTS (direct link + proxies)
-     - http link on an https page can only work through a proxy
-     - Mosfilm (pinned) also gets the free public proxies as backup
   ===================================================== */
 
   function getAttempts(channel) {
@@ -752,7 +1066,7 @@
     destroyPlayer();
 
     if (el.now) {
-      el.now.textContent = channel.name;
+      el.now.textContent = displayName(channel);
     }
 
     if (el.ph) {
@@ -818,8 +1132,6 @@
           };
 
           if (proxy) {
-            // Every request (playlist + segments) goes through the proxy,
-            // hls.js still resolves paths against the original URL.
             cfg.loader = class extends Hls.DefaultConfig.loader {
               load(ctx, conf, cb) {
                 const orig = ctx.url;
@@ -948,7 +1260,8 @@
 
         const searchMatch =
           !query ||
-          channel.name.toLowerCase().includes(query);
+          channel.name.toLowerCase().includes(query) ||
+          displayName(channel).toLowerCase().includes(query);
 
         return categoryMatch && searchMatch;
       })
@@ -971,7 +1284,7 @@
           return pA - pB;
         }
 
-        return a.name.localeCompare(b.name);
+        return displayName(a).localeCompare(displayName(b), "ru");
       });
   }
 
@@ -1018,6 +1331,8 @@
         previousGroup = group;
       }
 
+      const shownName = displayName(channel);
+
       const button = document.createElement("button");
 
       button.type = "button";
@@ -1036,19 +1351,19 @@
 
       if (channel.logo) {
         logo.src = channel.logo;
-        logo.alt = channel.name;
+        logo.alt = shownName;
         logo.loading = "lazy";
 
         logo.onerror = () => {
           const fallback = document.createElement("div");
 
           fallback.className = "channel-logo";
-          fallback.textContent = initials(channel.name);
+          fallback.textContent = initials(shownName);
 
           logo.replaceWith(fallback);
         };
       } else {
-        logo.textContent = initials(channel.name);
+        logo.textContent = initials(shownName);
       }
 
       const meta = document.createElement("div");
@@ -1056,7 +1371,7 @@
 
       const name = document.createElement("div");
       name.className = "channel-name";
-      name.textContent = channel.name;
+      name.textContent = shownName;
 
       const sub = document.createElement("div");
       sub.className = "channel-sub";
@@ -1337,6 +1652,8 @@
   ===================================================== */
 
   async function initialize() {
+    translateStaticUI();
+
     if (el.info) {
       el.info.textContent = "Подключение к источникам IPTV...";
     }
@@ -1366,6 +1683,8 @@
     render();
 
     setStatus("", "ok", false);
+
+    translateStaticUI();
 
     if (IS_TV) {
       setTimeout(focusFirstChannel, 1000);
