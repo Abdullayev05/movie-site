@@ -1,4 +1,3 @@
-
 (() => {
   "use strict";
 
@@ -11,6 +10,11 @@
 
   const MAX_CHANNELS = 100;
 
+  // Your own proxy (optional), e.g. "https://tvkino.adiniz.workers.dev/?url="
+  const PROXY = "";
+  // Free public CORS proxies, used as backup for Mosfilm only.
+  const PUBLIC_PROXIES = ["https://corsproxy.io/?url=", "https://api.allorigins.win/raw?url="];
+
   const SOURCES = [
     { id: "ru", url: BASE + "countries/ru.m3u", country: "ru" },
     { id: "by", url: BASE + "countries/by.m3u", country: "by" },
@@ -21,11 +25,11 @@
   ];
 
   const COUNTRY = {
-    ru: "Rusiya",
-    by: "Belarus",
-    az: "Azərbaycan",
-    tr: "Türkiyə",
-    ua: "Ukrayna"
+    ru: "Россия",
+    by: "Беларусь",
+    az: "Азербайджан",
+    tr: "Турция",
+    ua: "Украина"
   };
 
   const $ = id => document.getElementById(id);
@@ -78,7 +82,7 @@
       try {
         const value = localStorage.getItem(key);
         return value === null ? fallback : JSON.parse(value);
-      } catch {
+      } catch (e) {
         return fallback;
       }
     },
@@ -86,33 +90,48 @@
     set(key, value) {
       try {
         localStorage.setItem(key, JSON.stringify(value));
-      } catch {}
+      } catch (e) {}
     }
   };
 
   const favs = new Set(store.get("tvkino_favs", []));
 
   /* =====================================================
-     MOSFILM
-     This is the user's original Mosfilm stream URL.
+     MOSFILM (3 channels, each with its own link)
   ===================================================== */
+
+  const LOGO_GOLD = "data:image/png;base64,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";
+  const LOGO_MOS = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABOAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD5t20AVJijb7VI7DQKUCnqtSrH60rgRqtPCntUqpT9nBzSuBv65aoulWzwWscMMcYRyGDN5pIBBOBkHYzD61zu2u08RwTx+G7UzDIljt5GYnnzCJM8emB+tckEouRHYYoxTqeEoK0XCxGTxUT1Oy1C68GncLC25Ow/WiiAYU/WitVsMj8sUeWKsbPanrHk9KwuUV1j56VOkJParlvbFiOK1LawyBxWbnYpRuY6WzEHA57Vs/Ymuo9LR4XRWUgnyipKg5Jz378jjkU/ToF1C9ktYYZJIdyRtcKD5aE5+Un1PQc17DPpFgfC87X00vlW9mFBQANEAqkgeuSMH2FaQV0ZVJ8rseUareLe6Y9v87bbmKOJmbIK7SFUfiTWTqOk3Gm3stpdx7J4jhlBB/UV1XhbRrTW7qS2FzEjTGCS1bqN2C2SPTAYfXFX/G+mXUfiG8+1xsSHKLIwxvA/i/HP8qib05ghpLkPPTD7U1oeK3pLTH8NV3tuKlTuaOJhtERUEiVtSW453EKe2e5qhNFjmqUhNW1KEYwD9aKlIwaK6Y7EssJETVuC2yeBU0MWWAxW1p9qGIGK5JSsaRRBYWJJBxWwukrcp5css8cJGGEBCs3/AAIg4/KtWysgqjiti2sgRwK53Lqa2OR12zTTvDUo0yMWyQOkqruLF3DD5mJ6seOfQY4FaVyuqav4PvLixdriSSBiYlByxKncAB1IyazvHWrLb3J0URjLRpOzYLF+eEAXkdOta3ww8RXGq3cmnm1WOOGNsEtkgrjjHp9a7KCfLr1OTEb3XQ574a6ZdRy2V3b2d1JLbyOjhS6tEVYcccjgniuz8bNqWuai92pkjntgYUtZI1CsmBwWOCGBzgnPHFaHhxo20251m4LWxmlxMIyWIYEqGJ5BAGAT6DNN0yS7vZbv7VmTyygSYSiVXUgkYYdcf4Uqzcad0Kk1OpqcmumXCwqbpo2lKgsI14U9wD3+tU57LGeK724tevFYt7aYB44riUmdrR5p4rf7DaQSdzcJ+Q5NJcQ85A47VW+JMbjVbWMMdhh3be2dxGal0MM+jQl2LMCy5P1rqXwpmDKFyu2T8KKlvhiYD2orqh8KINy1j56V02j2+WFFn4elfws2rrn5JwpT1j6bvwb9DXQeHNIeXRrnUDkCJ1Cjsw6MfwyP1rjnGRcJIuWlqNoNa9rag0lnBlBxxWxawZI4rnRuzwr4q6fe6f4smv3SYWFzEm2VSQCVUApn146e9dB8OLRtHstPuooIor6+024uSx/iBkYIcdsADH1rZ+P9kjeDbKfB8yG9AGPRkbOfyFUNGtGvfDPg1dMkIubjR5LYySNtCn7QBg/RiRx2xXZTlpH+uhzVVdM1PDF5OvgnQlRmiL72neKRBI2T0AcYNJ8O9P8ALvdYZxbQzRSeU8EEjcDqGZMlQTzjHvXHeJ4fEXhfRFt7DVGjawuxYSi2Ay7HdggkZAynT39q9R+HvhfXNAtdQ/4SHUkv5Llo5I8ZLJ8p3BiRycnHfpRWmnCxFGm1K5auIRzxWRfQgqeK6q6gx1FYGufurK5kUDcsTsM+yk1xHYeJfEQb/EQjcLshtwU57nJ5qr4fkBsZY2IwjjGO26uae7muG824meSVurN8xPGOtJbyOLmPa7geYpwOMkGu1RsrESjc39TXFyP92inat/x9fh/U0VvD4UYM9yg1i3tNZt/DJQHT1t/s0uByZWHTPsML9Sa2bTULa21eHw/Aqi0iiMMhxkmUjkZ9hx9Sa8YsNVju2N0xuBOz72bgndnOc59a6LStShinWbfOXDb87QTnOc9axnUkhRpo9N0uyX7RcRXDskdsoZgv3nbOAo9u9adyyRWjSW6qJA4iAY/KGJAGf++ga5m18X20l1v8iZNyhXAAIb9ayNX+JKtYXljFpirHlog2855ONx96xjBN2ijVyaV2yDx9q2l6uNQ0Kf7bNbRsY0YsF3zrwHxxgBs8c8dqbpGi/Yb7Q4Jr6Se9sbaMQhgwjt0DkDCjgtuBPeubl8UROl6ZLFJri6TY80oDEcY3Af3vQnp161Ha+LTG5a9ge9YYwzyFGOPUjrn/AOvXWoxXQ5ZczRfnsLe+vtO1cNJc2t1dkzRTk5MmGdX9jwcjnqPWvRYfFT6VpN5f+J3eQLJMYvs8a4ZUIBAGRkjPXoTnHSvHT4rupbm3N2qPbQRSJFbxDy1VnGGkzyS3HU/TgU7VfF8eppex3dixgn2xxxrLgQwgACMcexOepLE1M4xktUXHmT0Z71ayx6toUGpWiSCO4iWePeuCARnaffHP4VzmrLFPpspWeBCwePLyqAWIICjnr7VwbfGHUIbryU06A6YIDF9l3457MGA4wMDHoK4+38Q2sVpaWJ09zbRSF1Qz5AO9iDyvOA+KwVJX1N3KTSsVNL8L3Gk+JETVMeRaRC8Mi5wwBIAIPQhwQQf7prSl0a1sddfWZJY201UF2sgGQxbkOF9P4sevFUtc8Wz6nZXdubVYpJWVPMEpbEakkKcjJJLOxbPJbpwKxZdSvJtCXSWZPs6yGRW53AHnb/u5+bHrmtk/IdpNXuSa5ZzWmrXMUknnANlHB4KkZGPbHI+tFU5GeZIRO7SGKMRKT2UdB+FFbpWRkf/Z";
 
   const MOSFILM = [
     {
-      name: "Mosfilm International",
+      name: "Мосфильм",
       country: "ru",
       category: "movie",
+      logo: LOGO_MOS,
       pinned: true,
-      urls: [
-        "http://stream.mcquack.net/369/index.m3u8"
-      ]
+      urls: ["https://fs.uplink.kz/mosfilm/mono.m3u8?token=onlinetv"]
+    },
+    {
+      name: "Мосфильм. Золотая коллекция",
+      country: "ru",
+      category: "movie",
+      logo: LOGO_GOLD,
+      pinned: true,
+      urls: ["http://31.222.235.15/mosfilm/index.m3u8"]
+    },
+    {
+      name: "Мосфильм Интернешнл",
+      country: "ru",
+      category: "movie",
+      logo: "",
+      pinned: true,
+      urls: ["http://stream.mcquack.net/369/index.m3u8"]
     }
   ];
 
   /* =====================================================
      PRIORITY CHANNELS
-     These names are used to rank channels found in M3U.
-     A channel is added only when a stream URL is found.
   ===================================================== */
 
   const PRIORITY = [
@@ -354,9 +373,9 @@
             .replace(/\s*\[.*?\]/g, "")
             .replace(/\s*\(.*?\)/g, "")
             .trim(),
-          logo,
-          group,
-          tvgId
+          logo: logo,
+          group: group,
+          tvgId: tvgId
         };
 
         continue;
@@ -371,7 +390,7 @@
         result.push({
           name: currentInfo.name,
           logo: currentInfo.logo,
-          country,
+          country: country,
           category: mapCategory(
             currentInfo.group + " " + currentInfo.name
           ),
@@ -458,10 +477,9 @@
       const key = channelKey(channel);
 
       if (!map.has(key)) {
-        map.set(key, {
-          ...channel,
-          urls: [...channel.urls]
-        });
+        map.set(key, Object.assign({}, channel, {
+          urls: channel.urls.slice()
+        }));
 
         return;
       }
@@ -483,7 +501,7 @@
       }
     });
 
-    return [...map.values()];
+    return Array.from(map.values());
   }
 
   /* =====================================================
@@ -491,7 +509,7 @@
   ===================================================== */
 
   function selectTopChannels(input) {
-    const sorted = [...input].sort((a, b) => {
+    const sorted = input.slice().sort((a, b) => {
       if (a.pinned !== b.pinned) {
         return a.pinned ? -1 : 1;
       }
@@ -503,12 +521,10 @@
         return priorityA - priorityB;
       }
 
-      // Prefer channels with logos.
       if (!!a.logo !== !!b.logo) {
         return a.logo ? -1 : 1;
       }
 
-      // Prefer channels with more than one stream.
       if (a.urls.length !== b.urls.length) {
         return b.urls.length - a.urls.length;
       }
@@ -536,7 +552,9 @@
      STATUS
   ===================================================== */
 
-  function setStatus(message, state = "wait", showLoader = false) {
+  function setStatus(message, state, showLoader) {
+    state = state || "wait";
+
     if (el.status) {
       el.status.classList.toggle("hide", !message);
     }
@@ -558,10 +576,10 @@
 
     if (el.pinfo) {
       el.pinfo.textContent =
-        state === "ok" ? "Canlı yayım" :
-        state === "err" ? "Playback error" :
-        state === "wait" ? "Yüklənir..." :
-        "Ready to watch";
+        state === "ok" ? "Прямой эфир" :
+        state === "err" ? "Ошибка воспроизведения" :
+        state === "wait" ? "Загрузка..." :
+        "Готово к просмотру";
     }
   }
 
@@ -575,7 +593,7 @@
     if (hls) {
       try {
         hls.destroy();
-      } catch {}
+      } catch (e) {}
 
       hls = null;
     }
@@ -584,29 +602,40 @@
       el.video.pause();
       el.video.removeAttribute("src");
       el.video.load();
-    } catch {}
+    } catch (e) {}
   }
 
   /* =====================================================
-     URL MANAGEMENT
+     ATTEMPTS (direct link + proxies)
+     - http link on an https page can only work through a proxy
+     - Mosfilm (pinned) also gets the free public proxies as backup
   ===================================================== */
 
   function getAttempts(channel) {
-    return [...new Set(
-      (channel.urls || []).filter(url => {
-        if (!/^https?:\/\//i.test(url)) return false;
+    const out = [];
+    const seen = new Set();
+    const httpsPage = location.protocol === "https:";
 
-        // HTTPS pages cannot play insecure HTTP streams.
-        if (
-          location.protocol === "https:" &&
-          url.startsWith("http:")
-        ) {
-          return false;
-        }
+    function add(u, p) {
+      const k = (p || "") + "|" + u;
+      if (seen.has(k)) return;
+      seen.add(k);
+      out.push({ u: u, p: p || "" });
+    }
 
-        return true;
-      })
-    )];
+    (channel.urls || []).forEach(u => {
+      if (!/^https?:\/\//i.test(u)) return;
+
+      const blocked = httpsPage && /^http:/i.test(u);
+
+      if (!blocked) add(u, "");
+      if (PROXY) add(u, PROXY);
+      if (channel.pinned) {
+        PUBLIC_PROXIES.forEach(p => add(u, p));
+      }
+    });
+
+    return out;
   }
 
   /* =====================================================
@@ -639,7 +668,7 @@
       const script = document.createElement("script");
 
       script.src =
-        "https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js";
+        "https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js";
 
       script.onload = () => resolve(!!window.Hls);
 
@@ -676,7 +705,7 @@
     destroyPlayer();
 
     setStatus(
-      "Kanal açıla bilmədi: " + message,
+      "Не удалось открыть канал: " + message,
       "err",
       false
     );
@@ -690,7 +719,9 @@
      MAIN PLAY FUNCTION
   ===================================================== */
 
-  async function play(channel, index = 0) {
+  async function play(channel, index) {
+    index = index || 0;
+
     if (!channel) return;
 
     const myGeneration = ++generation;
@@ -698,16 +729,25 @@
     current = channel;
     urlIndex = index;
 
-    const urls = getAttempts(channel);
-    const url = urls[index];
+    const attempts = getAttempts(channel);
+    const attempt = attempts[index];
 
-    if (!url) {
+    if (!attempt) {
       setStatus(
-        "Bu kanal üçün uyğun yayım ünvanı yoxdur.",
-        "err"
+        "Для этого канала нет подходящего адреса трансляции.",
+        "err",
+        false
       );
+
+      if (el.retry) {
+        el.retry.hidden = false;
+      }
+
       return;
     }
+
+    const url = attempt.u;
+    const proxy = attempt.p;
 
     destroyPlayer();
 
@@ -728,15 +768,19 @@
       el.mos.hidden = !isMosfilm;
     }
 
-    setStatus("Kanal yüklənir...", "wait", true);
+    setStatus(
+      "Загрузка канала... (" + (index + 1) + "/" + attempts.length + ")",
+      "wait",
+      true
+    );
 
     render();
 
     playTimeout = setTimeout(() => {
       if (myGeneration === generation) {
-        playbackError("Timeout", myGeneration);
+        playbackError("превышено время ожидания", myGeneration);
       }
-    }, 30000);
+    }, 20000);
 
     const video = el.video;
 
@@ -746,12 +790,10 @@
     video.setAttribute("webkit-playsinline", "");
     video.preload = "auto";
 
-    const isHls =
-      /\.m3u8($|\?)/i.test(url) ||
-      url.toLowerCase().includes(".m3u8");
+    const isHls = url.toLowerCase().includes(".m3u8");
 
-    // Use HLS.js on browsers that support Media Source Extensions.
-    if (isHls && !supportsNativeHLS()) {
+    // hls.js is used when the browser has no native HLS, or when a proxy is needed.
+    if (isHls && (!supportsNativeHLS() || proxy)) {
       const available = await loadHlsLibrary();
 
       if (myGeneration !== generation) return;
@@ -762,7 +804,7 @@
         window.Hls.isSupported()
       ) {
         try {
-          hls = new Hls({
+          const cfg = {
             enableWorker: false,
             lowLatencyMode: false,
             backBufferLength: 30,
@@ -770,20 +812,45 @@
             manifestLoadingTimeOut: 15000,
             levelLoadingTimeOut: 15000,
             fragLoadingTimeOut: 20000,
-            manifestLoadingMaxRetry: 2,
+            manifestLoadingMaxRetry: 1,
             levelLoadingMaxRetry: 2,
             fragLoadingMaxRetry: 3
-          });
+          };
+
+          if (proxy) {
+            // Every request (playlist + segments) goes through the proxy,
+            // hls.js still resolves paths against the original URL.
+            cfg.loader = class extends Hls.DefaultConfig.loader {
+              load(ctx, conf, cb) {
+                const orig = ctx.url;
+                const ok = cb.onSuccess;
+                ctx.url = proxy + encodeURIComponent(orig);
+                cb.onSuccess = function (res, stats, c2, net) {
+                  res.url = orig;
+                  c2.url = orig;
+                  ok(res, stats, c2, net);
+                };
+                super.load(ctx, conf, cb);
+              }
+            };
+          }
+
+          hls = new Hls(cfg);
 
           hls.on(Hls.Events.MANIFEST_PARSED, () => {
             if (myGeneration !== generation) return;
 
-            video.play().catch(() => {
-              setStatus(
-                "Yayımı başlatmaq üçün OK düyməsinə basın.",
-                "wait"
-              );
-            });
+            const p = video.play();
+
+            if (p && p.catch) {
+              p.catch(() => {
+                setStatus(
+                  "Нажмите OK, чтобы запустить трансляцию.",
+                  "wait",
+                  false
+                );
+              });
+            }
           });
 
           hls.on(Hls.Events.ERROR, (_, data) => {
@@ -795,7 +862,7 @@
             }
 
             playbackError(
-              data.details || "HLS error",
+              "ошибка HLS",
               myGeneration
             );
           });
@@ -811,22 +878,27 @@
       }
     }
 
-    // Native HLS is preferred on Smart TVs.
+    // Native HLS (Smart TVs) or a plain video file.
     if (supportsNativeHLS() || !isHls) {
-      video.src = url;
+      video.src = proxy ? proxy + encodeURIComponent(url) : url;
       video.load();
 
-      video.play().catch(() => {
-        setStatus(
-          "Yayımı başlatmaq üçün OK düyməsinə basın.",
-          "wait"
-        );
-      });
+      const p2 = video.play();
+
+      if (p2 && p2.catch) {
+        p2.catch(() => {
+          setStatus(
+            "Нажмите OK, чтобы запустить трансляцию.",
+            "wait",
+            false
+          );
+        });
+      }
 
       return;
     }
 
-    playbackError("HLS dəstəyi mövcud deyil", myGeneration);
+    playbackError("HLS не поддерживается", myGeneration);
   }
 
   /* =====================================================
@@ -847,19 +919,19 @@
 
   el.video.addEventListener("waiting", () => {
     if (current) {
-      setStatus("Buffering...", "wait", true);
+      setStatus("Буферизация...", "wait", true);
     }
   });
 
   el.video.addEventListener("error", () => {
     if (current && !hls) {
-      playbackError("Video error", generation);
+      playbackError("ошибка видео", generation);
     }
   });
 
   el.video.addEventListener("ended", () => {
     if (current) {
-      playbackError("Stream ended", generation);
+      playbackError("трансляция завершена", generation);
     }
   });
 
@@ -920,7 +992,7 @@
       const empty = document.createElement("div");
 
       empty.className = "list-empty";
-      empty.textContent = "Kanal tapılmadı.";
+      empty.textContent = "Каналы не найдены.";
 
       el.list.appendChild(empty);
       return;
@@ -932,8 +1004,8 @@
 
     list.forEach(channel => {
       const group = favs.has(channelKey(channel))
-        ? "Sevimlilər"
-        : COUNTRY[channel.country] || "Digər";
+        ? "Избранное"
+        : COUNTRY[channel.country] || "Другое";
 
       if (group !== previousGroup) {
         const title = document.createElement("div");
@@ -990,7 +1062,8 @@
       sub.className = "channel-sub";
       sub.textContent = COUNTRY[channel.country] || "IPTV";
 
-      meta.append(name, sub);
+      meta.appendChild(name);
+      meta.appendChild(sub);
 
       const favorite = document.createElement("span");
 
@@ -1003,7 +1076,9 @@
       favorite.textContent =
         favs.has(channelKey(channel)) ? "★" : "☆";
 
-      button.append(logo, meta, favorite);
+      button.appendChild(logo);
+      button.appendChild(meta);
+      button.appendChild(favorite);
 
       fragment.appendChild(button);
     });
@@ -1031,7 +1106,7 @@
         favs.add(key);
       }
 
-      store.set("tvkino_favs", [...favs]);
+      store.set("tvkino_favs", Array.from(favs));
 
       render();
       return;
@@ -1068,10 +1143,12 @@
 
       if (!button) return;
 
-      categoryFilter.querySelectorAll(".cat-btn")
-        .forEach(item => {
+      Array.prototype.forEach.call(
+        categoryFilter.querySelectorAll(".cat-btn"),
+        item => {
           item.classList.toggle("active", item === button);
-        });
+        }
+      );
 
       category = button.dataset.category || "all";
 
@@ -1104,7 +1181,7 @@
   }
 
   function channelButtons() {
-    return [...el.list.querySelectorAll(".channel-item")];
+    return Array.from(el.list.querySelectorAll(".channel-item"));
   }
 
   function navigateChannels(direction) {
@@ -1168,10 +1245,13 @@
     }
 
     if (playPause) {
+      if (active === el.search) return;
+
       event.preventDefault();
 
       if (el.video.paused) {
-        el.video.play().catch(() => {});
+        const p = el.video.play();
+        if (p && p.catch) p.catch(() => {});
       } else {
         el.video.pause();
       }
@@ -1182,7 +1262,7 @@
     if (back) {
       if (active === el.search) {
         el.search.blur();
-      } else if (active !== document.body) {
+      } else if (active && active !== document.body) {
         active.blur();
       }
 
@@ -1258,27 +1338,26 @@
 
   async function initialize() {
     if (el.info) {
-      el.info.textContent = "IPTV mənbələrinə qoşulur...";
+      el.info.textContent = "Подключение к источникам IPTV...";
     }
 
-    setStatus("Kanallar yüklənir...", "wait", true);
+    setStatus("Загрузка каналов...", "wait", true);
 
     const results = await Promise.all(
       SOURCES.map(fetchSource)
     );
 
-    const parsed = results.flat();
+    // Mosfilm comes only from the 3 channels defined above.
+    const parsed = [].concat.apply([], results)
+      .filter(c => !/мосфильм|mosfilm/i.test(c.name));
 
-    channels = mergeChannels([
-      ...MOSFILM,
-      ...parsed
-    ]);
+    channels = mergeChannels(MOSFILM.concat(parsed));
 
     channels = selectTopChannels(channels);
 
     if (el.info) {
       el.info.textContent =
-        "Yüklənmiş kanal sayı: " +
+        "Загружено каналов: " +
         channels.length +
         " / " +
         MAX_CHANNELS;
@@ -1291,14 +1370,6 @@
     if (IS_TV) {
       setTimeout(focusFirstChannel, 1000);
     }
-
-    console.log("TVKINO channels loaded:", channels.length);
-    console.log(
-      "Priority channels:",
-      channels
-        .filter(channel => getPriority(channel) < 20)
-        .map(channel => channel.name)
-    );
   }
 
   /* =====================================================
@@ -1310,10 +1381,10 @@
 
     if (el.info) {
       el.info.textContent =
-        "Kanalları yükləmək mümkün olmadı.";
+        "Не удалось загрузить каналы.";
     }
 
-    setStatus("Playlist yüklənmədi.", "err", false);
+    setStatus("Плейлист не загружен.", "err", false);
   });
 
 })();
