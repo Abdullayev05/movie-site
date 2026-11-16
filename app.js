@@ -1,4 +1,3 @@
-
 "use strict";
 
 /* ============================================
@@ -6,42 +5,45 @@
 ============================================ */
 
 const PLAYLISTS = [
-    {
-        name: "Russia",
-        url: "https://iptv-org.github.io/iptv/countries/ru.m3u"
-    },
-    {
-        name: "Azerbaijan",
-        url: "https://iptv-org.github.io/iptv/countries/az.m3u"
-    },
-    {
-        name: "English",
-        url: "https://iptv-org.github.io/iptv/languages/eng.m3u"
-    }
+    { name: "Russia",     url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
+    { name: "Belarus",    url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
+    { name: "Azerbaijan", url: "https://iptv-org.github.io/iptv/countries/az.m3u" }
 ];
 
 
 /*
-    These are additional candidate streams from
-    public IPTV playlist listings.
-
-    They are not guaranteed or represented as official.
+    Additional candidate streams from public IPTV listings.
+    Key = channel id. Not guaranteed or represented as official.
 */
 
 const EXTRA_STREAMS = {
-    "Mosfilm": [
+    mosfilm: [
         "https://fs.uplink.kz/mosfilm/mono.m3u8?token=onlinetv",
         "http://31.222.235.15/mosfilm/index.m3u8",
         "http://stream.mcquack.net/369/index.m3u8"
     ],
 
-    "Russia 24": [
+    russia24: [
         "https://live.smotrim.ru/vgtrk/0/russia24-hd/index.m3u8",
         "https://stream.smotrim.ru/hls2/russia24nl_smotrim/playlist_5.m3u8"
     ],
 
-    "Russia 1": [
-        "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8"
+    russia1: [
+        "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8",
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8"
+    ],
+
+    perviy: [
+        "https://okkotv-live.cdnvideo.ru/channel/Pervii_Kanal_OTT_HD.m3u8",
+        "http://178.212.71.253:8000/play/1/index.m3u8",
+        "http://tv.tuva.ru/ort/index.m3u8",
+        "https://streaming.thestream.cyou/live/210-req_offset_28000000-req_window_0-1k_v5.m3u8"
+    ],
+
+    by2: [],
+
+    ntv: [
+        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
     ]
 };
 
@@ -59,46 +61,22 @@ const CHANNEL_DEFINITIONS = [
         official: "https://www.mosfilm.ru/cinema/"
     },
     {
-        id: "russia24",
-        name: "Россия 24",
-        aliases: ["russia-24", "russia 24", "россия-24", "россия 24"],
-        category: "news"
-    },
-    {
         id: "russia1",
         name: "Россия 1",
         aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
         category: "news"
     },
     {
-        id: "perviy",
-        name: "Первый канал",
-        aliases: ["channel one russia", "perviy kanal", "первый канал", "1tv"],
+        id: "russia24",
+        name: "Россия 24",
+        aliases: ["russia-24", "russia 24", "россия-24", "россия 24"],
         category: "news"
     },
     {
         id: "ntv",
         name: "НТВ",
-        aliases: ["ntv"],
+        aliases: ["ntv", "нтв"],
         category: "news"
-    },
-    {
-        id: "ren",
-        name: "РЕН ТВ",
-        aliases: ["ren tv", "рен тв"],
-        category: "news"
-    },
-    {
-        id: "sts",
-        name: "СТС",
-        aliases: ["sts", "стс"],
-        category: "movie"
-    },
-    {
-        id: "tnt",
-        name: "ТНТ",
-        aliases: ["tnt", "тнт"],
-        category: "movie"
     },
     {
         id: "mir",
@@ -112,53 +90,58 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["zvezda", "звезда"],
         category: "news"
     },
+
+    /* Belarus */
     {
-        id: "culture",
-        name: "Россия Культура",
-        aliases: ["russia-k", "russia k", "россия-к", "культура"],
-        category: "movie"
-    },
-    {
-        id: "euronews",
-        name: "Euronews",
-        aliases: ["euronews"],
+        id: "by1",
+        name: "Беларусь 1",
+        aliases: ["belarus 1", "беларусь 1"],
         category: "news"
     },
     {
-        id: "bbc",
-        name: "BBC News",
-        aliases: ["bbc news", "bbc world"],
+        id: "by2",
+        name: "Беларусь 2",
+        aliases: ["belarus 2", "беларусь 2"],
+        category: "movie",
+        official: "https://www.tvr.by"
+    },
+    {
+        id: "by24",
+        name: "Беларусь 24",
+        aliases: ["belarus 24", "беларусь 24"],
         category: "news"
     },
     {
-        id: "discovery",
-        name: "Discovery",
-        aliases: ["discovery channel", "discovery"],
+        id: "by3",
+        name: "Беларусь 3",
+        aliases: ["belarus 3", "беларусь 3"],
         category: "movie"
     },
     {
-        id: "eurosport",
-        name: "Eurosport",
-        aliases: ["eurosport"],
-        category: "sport"
-    },
-    {
-        id: "natgeo",
-        name: "National Geographic",
-        aliases: ["national geographic", "nat geo", "natgeo"],
+        id: "by5",
+        name: "Беларусь 5",
+        aliases: ["belarus 5", "беларусь 5"],
         category: "movie"
     },
+    // {
+    //     id: "ont",
+    //     name: "ОНТ",
+    //     aliases: ["ont", "онт"],
+    //     category: "news"
+    // },
+    // {
+    //     id: "stv",
+    //     name: "СТВ",
+    //     aliases: ["ctv belarus", "ctv", "ств"],
+    //     category: "news"
+    // },
+
     {
-        id: "karusel",
-        name: "Карусель",
-        aliases: ["karusel", "карусель"],
-        category: "kids"
-    },
-    {
-        id: "muztv",
-        name: "Муз-ТВ",
-        aliases: ["muz-tv", "muz tv", "муз-тв"],
-        category: "music"
+        id: "perviy",
+        name: "Первый канал",
+        aliases: ["channel one russia", "perviy kanal", "первый канал", "1tv"],
+        category: "news",
+        official: "https://www.1tv.ru/live"
     }
 ];
 
@@ -197,6 +180,7 @@ let currentHls = null;
 
 let currentCategory = "all";
 let currentSearch = "";
+let onlyWorking = false;
 
 let playbackId = 0;
 let sourcePosition = 0;
@@ -205,6 +189,7 @@ let startupTimer = null;
 let retryTimer = null;
 
 const START_TIMEOUT = 12000;
+const MAX_CANDIDATES = 15;
 
 
 /* ============================================
@@ -385,7 +370,8 @@ function buildChannels(entries) {
     const result = CHANNEL_DEFINITIONS.map(definition => ({
         ...definition,
         urls: [],
-        sources: []
+        sources: [],
+        status: "unknown"   // ok | unknown | bad
     }));
 
     const byId = new Map(
@@ -407,25 +393,130 @@ function buildChannels(entries) {
 
     // Add additional candidate streams
     for (const channel of result) {
-        const extra = EXTRA_STREAMS[channel.name === "Mosfilm. Zolotaya Kolleksiya"
-            ? "Mosfilm"
-            : channel.id === "russia24"
-                ? "Russia 24"
-                : channel.id === "russia1"
-                    ? "Russia 1"
-                    : ""];
+        const extra = EXTRA_STREAMS[channel.id];
 
-        if (extra) {
-            for (const url of extra) {
-                if (!channel.urls.includes(url)) {
-                    channel.urls.push(url);
-                    channel.sources.push("Additional public source");
-                }
+        if (!extra) continue;
+
+        for (const url of extra) {
+            if (!channel.urls.includes(url)) {
+                channel.urls.push(url);
+                channel.sources.push("Additional public source");
             }
         }
     }
 
+    // https ünvanlar http-dən əvvəl (mixed content problemi üçün)
+    for (const channel of result) {
+        const items = channel.urls.map((url, i) => ({
+            url,
+            source: channel.sources[i]
+        }));
+
+        items.sort((a, b) => {
+            const aHttps = a.url.startsWith("https://") ? 0 : 1;
+            const bHttps = b.url.startsWith("https://") ? 0 : 1;
+            return aHttps - bHttps;
+        });
+
+        channel.urls = items.map(item => item.url);
+        channel.sources = items.map(item => item.source);
+    }
+
     return result;
+}
+
+
+/* ============================================
+   STREAM HEALTH CHECK (kanalı SİLMİR, yalnız sıralayır)
+   Qaytarır: "ok" | "bad" | "unknown"
+   - ok      : playlist oxundu və düzgündür
+   - bad     : server aydın şəkildə xəta verdi / playlist yanlışdır
+   - unknown : CORS / timeout / şəbəkə xətası (yayım yenə də işləyə bilər)
+============================================ */
+
+async function probeUrl(url, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+        const res = await fetch(url, {
+            signal: controller.signal,
+            cache: "no-store"
+        });
+
+        if (!res.ok) return "bad";
+
+        const text = await res.text();
+
+        if (!text.includes("#EXTM3U")) return "bad";
+
+        if (text.includes("#EXT-X-STREAM-INF")) {
+            const sub = text
+                .split(/\r?\n/)
+                .map(line => line.trim())
+                .find(line => line && !line.startsWith("#"));
+
+            if (!sub) return "bad";
+
+            const res2 = await fetch(new URL(sub, res.url).href, {
+                signal: controller.signal,
+                cache: "no-store"
+            });
+
+            if (!res2.ok) return "bad";
+
+            const text2 = await res2.text();
+
+            return text2.includes("#EXTM3U") ? "ok" : "bad";
+        }
+
+        return "ok";
+
+    } catch {
+        // CORS, timeout, mixed content və s. - qərar vermirik
+        return "unknown";
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+async function verifyChannels(list) {
+    const rank = { ok: 0, unknown: 1, bad: 2 };
+
+    await Promise.all(list.map(async channel => {
+        const candidates = channel.urls.slice(0, MAX_CANDIDATES);
+
+        const states = await Promise.all(
+            candidates.map(url => probeUrl(url))
+        );
+
+        const items = candidates
+            .map((url, i) => ({
+                url,
+                source: channel.sources[i],
+                state: states[i]
+            }))
+            .filter(item => item.state !== "bad")
+            .sort((a, b) => rank[a.state] - rank[b.state]);
+
+        channel.urls = items.map(item => item.url);
+        channel.sources = items.map(item => item.source);
+
+        if (items.some(item => item.state === "ok")) {
+            channel.status = "ok";
+        } else if (items.length > 0) {
+            channel.status = "unknown";
+        } else {
+            channel.status = "bad";
+        }
+
+        console.log(
+            `Health check: ${channel.name} - ${channel.status} (${items.length}/${candidates.length} usable)`
+        );
+
+        // Hər kanal bitdikcə siyahını yenilə
+        renderChannels();
+    }));
 }
 
 
@@ -468,18 +559,23 @@ async function loadChannels() {
         }
     });
 
+    // Bütün kanalları DƏRHAL göstər
     channels = buildChannels(entries);
 
-    const available = channels.filter(
-        channel => channel.urls.length > 0
-    ).length;
-
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${available} kanal mənbə tapdı`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v7`;
 
     renderChannels();
 
     console.log("Channel results:", channels);
+
+    // Yoxlama arxa fonda gedir, kanalı silmir
+    verifyChannels(channels).then(() => {
+        const ok = channels.filter(c => c.status === "ok").length;
+
+        sourceInfo.textContent =
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v7`;
+    });
 }
 
 
@@ -498,7 +594,10 @@ function renderChannels() {
         const searchMatch =
             normalize(channel.name).includes(normalize(currentSearch));
 
-        return categoryMatch && searchMatch;
+        const workingMatch =
+            !onlyWorking || channel.status === "ok";
+
+        return categoryMatch && searchMatch && workingMatch;
     });
 
     channelCount.textContent = filtered.length;
@@ -514,6 +613,18 @@ function renderChannels() {
 
     const fragment = document.createDocumentFragment();
 
+    const dotColors = {
+        ok: "#32c879",
+        unknown: "#8a8f98",
+        bad: "#e53946"
+    };
+
+    const dotTitles = {
+        ok: "Yayım təsdiqlənib",
+        unknown: "Yoxlanılmayıb (yenə də işləyə bilər)",
+        bad: "İşlək yayım ünvanı tapılmadı"
+    };
+
     filtered.forEach(channel => {
         const button = document.createElement("button");
 
@@ -524,23 +635,20 @@ function renderChannels() {
             button.classList.add("active");
         }
 
-        if (!channel.urls.length) {
-            button.classList.add("channel-unavailable");
-        }
-
         const name = document.createElement("span");
         name.className = "channel-name";
         name.textContent = channel.name;
 
-        const details = document.createElement("span");
-        details.className = "channel-country";
+        const dot = document.createElement("span");
+        dot.className = "channel-status-dot";
+        dot.title = dotTitles[channel.status] || "";
+        dot.style.cssText =
+            "display:inline-block;width:8px;height:8px;border-radius:50%;" +
+            "margin-left:8px;flex-shrink:0;background:" +
+            (dotColors[channel.status] || dotColors.unknown);
 
-        details.textContent = channel.urls.length
-            ? `${channel.urls.length} yayım ünvanı`
-            : "Yayım ünvanı tapılmadı";
-
-        name.appendChild(details);
         button.appendChild(name);
+        button.appendChild(dot);
 
         button.addEventListener("click", () => {
             document.querySelectorAll(".channel-item").forEach(item => {
@@ -814,7 +922,11 @@ function showUnavailable(session) {
 
     retryButton.hidden = false;
 
-    if (currentChannel.id === "mosfilm") {
+    if (currentChannel.official) {
+        mosfilmLink.href = currentChannel.official;
+        mosfilmLink.target = "_blank";
+        mosfilmLink.rel = "noopener";
+        mosfilmLink.textContent = "Rəsmi saytda izlə";
         mosfilmLink.hidden = false;
     }
 }
@@ -858,6 +970,25 @@ searchInput.addEventListener("input", () => {
     currentSearch = searchInput.value.trim();
     renderChannels();
 });
+
+
+/* ============================================
+   "ONLY WORKING" CHECKBOX
+============================================ */
+
+const onlyWorkingBox =
+    document.getElementById("onlyWorking") ||
+    document.querySelector('input[type="checkbox"]');
+
+if (onlyWorkingBox) {
+    onlyWorkingBox.checked = false;   // defolt: hamısı görünsün
+    onlyWorking = false;
+
+    onlyWorkingBox.addEventListener("change", () => {
+        onlyWorking = onlyWorkingBox.checked;
+        renderChannels();
+    });
+}
 
 
 /* ============================================
