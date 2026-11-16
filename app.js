@@ -12,6 +12,18 @@ const PLAYLISTS = [
 
 
 /*
+    Öz tapdığınız işlək .m3u8 ünvanlarını bura yazın.
+    Bunlar hər zaman ilk sıraya düşür.
+    Nümunə:
+    russia1: ["https://sizin-server.com/russia1/index.m3u8"]
+*/
+
+const CUSTOM_STREAMS = {
+    russia1: []
+};
+
+
+/*
     Additional candidate streams from public IPTV listings.
     Key = channel id. Not guaranteed or represented as official.
 */
@@ -63,8 +75,14 @@ const CHANNEL_DEFINITIONS = [
     {
         id: "russia1",
         name: "Россия 1",
-        aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
-        category: "news"
+        aliases: [
+            "russia-1", "russia 1", "russia 1 hd",
+            "rossiya 1", "rossiya-1", "rossija 1", "rossiia 1",
+            "россия-1", "россия 1", "россия 1 hd",
+            "vgtrk russia 1"
+        ],
+        category: "news",
+        official: "https://smotrim.ru/live/1"
     },
     {
         id: "russia24",
@@ -378,6 +396,20 @@ function buildChannels(entries) {
         result.map(channel => [channel.id, channel])
     );
 
+    // Əl ilə əlavə olunan ünvanlar (ən yüksək prioritet)
+    for (const channel of result) {
+        const custom = CUSTOM_STREAMS[channel.id];
+
+        if (!custom) continue;
+
+        for (const url of custom) {
+            if (!channel.urls.includes(url)) {
+                channel.urls.push(url);
+                channel.sources.push("Custom source");
+            }
+        }
+    }
+
     for (const entry of entries) {
         const definition = findDefinition(entry);
 
@@ -405,18 +437,19 @@ function buildChannels(entries) {
         }
     }
 
-    // https ünvanlar http-dən əvvəl (mixed content problemi üçün)
+    // Custom ilk, sonra https, sonra http (mixed content problemi üçün)
     for (const channel of result) {
         const items = channel.urls.map((url, i) => ({
             url,
             source: channel.sources[i]
         }));
 
-        items.sort((a, b) => {
-            const aHttps = a.url.startsWith("https://") ? 0 : 1;
-            const bHttps = b.url.startsWith("https://") ? 0 : 1;
-            return aHttps - bHttps;
-        });
+        const weight = item => {
+            if (item.source === "Custom source") return 0;
+            return item.url.startsWith("https://") ? 1 : 2;
+        };
+
+        items.sort((a, b) => weight(a) - weight(b));
 
         channel.urls = items.map(item => item.url);
         channel.sources = items.map(item => item.source);
@@ -490,13 +523,13 @@ async function verifyChannels(list) {
             candidates.map(url => probeUrl(url))
         );
 
+        // "bad" ünvanlar SİLİNMİR, yalnız sona keçir
         const items = candidates
             .map((url, i) => ({
                 url,
                 source: channel.sources[i],
                 state: states[i]
             }))
-            .filter(item => item.state !== "bad")
             .sort((a, b) => rank[a.state] - rank[b.state]);
 
         channel.urls = items.map(item => item.url);
@@ -504,14 +537,15 @@ async function verifyChannels(list) {
 
         if (items.some(item => item.state === "ok")) {
             channel.status = "ok";
-        } else if (items.length > 0) {
+        } else if (items.some(item => item.state === "unknown")) {
             channel.status = "unknown";
         } else {
             channel.status = "bad";
         }
 
         console.log(
-            `Health check: ${channel.name} - ${channel.status} (${items.length}/${candidates.length} usable)`
+            `Health check: ${channel.name} - ${channel.status}`,
+            items.map(item => `${item.state}: ${item.url}`)
         );
 
         // Hər kanal bitdikcə siyahını yenilə
@@ -563,7 +597,7 @@ async function loadChannels() {
     channels = buildChannels(entries);
 
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v7`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v8`;
 
     renderChannels();
 
@@ -574,7 +608,7 @@ async function loadChannels() {
         const ok = channels.filter(c => c.status === "ok").length;
 
         sourceInfo.textContent =
-            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v7`;
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v8`;
     });
 }
 
@@ -735,6 +769,8 @@ function startNextSource(session) {
 
     startupTimer = setTimeout(() => {
         if (session !== playbackId) return;
+
+        console.warn("Startup timeout:", url);
 
         sourcePosition++;
         startNextSource(session);
