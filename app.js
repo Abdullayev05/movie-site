@@ -12,6 +12,16 @@ const PLAYLISTS = [
 
 
 /*
+    Россия 1 üçün özünüzün tapdığınız işlək .m3u8 ünvanı bura yazılır.
+    Nümunə: russia1: ["https://sizin-server.com/russia1/index.m3u8"]
+*/
+
+const CUSTOM_STREAMS = {
+    russia1: []
+};
+
+
+/*
     Additional candidate streams from public IPTV listings.
     Key = channel id. Not guaranteed or represented as official.
 */
@@ -60,16 +70,15 @@ const CHANNEL_DEFINITIONS = [
         category: "movie",
         official: "https://www.mosfilm.ru/cinema/"
     },
-   {
+    {
         id: "russia1",
         name: "Россия 1",
         aliases: [
-            "russia-1", "russia 1", "russia 1 hd",
-            "rossiya 1", "rossiya-1", "rossija 1", "rossiia 1",
-            "россия-1", "россия 1", "россия 1 hd",
-            "vgtrk russia 1"
+            "russia-1", "russia 1", "rossiya 1", "rossiya-1",
+            "россия-1", "россия 1"
         ],
         category: "news",
+        exact: true,
         official: "https://smotrim.ru/live/1"
     },
     {
@@ -129,18 +138,18 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["belarus 5", "беларусь 5"],
         category: "movie"
     },
-    // {
-    //     id: "ont",
-    //     name: "ОНТ",
-    //     aliases: ["ont", "онт"],
-    //     category: "news"
-    // },
-    // {
-    //     id: "stv",
-    //     name: "СТВ",
-    //     aliases: ["ctv belarus", "ctv", "ств"],
-    //     category: "news"
-    // },
+    {
+        id: "ont",
+        name: "ОНТ",
+        aliases: ["ont", "онт"],
+        category: "news"
+    },
+    {
+        id: "stv",
+        name: "СТВ",
+        aliases: ["ctv belarus", "ctv", "ств"],
+        category: "news"
+    },
 
     {
         id: "perviy",
@@ -350,9 +359,21 @@ function findDefinition(entry) {
         entry.name + " " + entry.group
     );
 
+    // Dəqiq uyğunluq üçün ad: (1080p), [Not 24/7] kimi hissələr atılır
+    const exactName = normalize(
+        String(entry.name || "").replace(/[\(\[][^\)\]]*[\)\]]/g, " ")
+    );
+
     for (const definition of CHANNEL_DEFINITIONS) {
         for (const alias of definition.aliases) {
             const normalizedAlias = normalize(alias);
+
+            if (definition.exact) {
+                if (exactName === normalizedAlias) {
+                    return definition;
+                }
+                continue;
+            }
 
             if (
                 channelName === normalizedAlias ||
@@ -412,7 +433,10 @@ function buildChannels(entries) {
     }
 
     // https ünvanlar http-dən əvvəl (mixed content problemi üçün)
+    // Россия 1 istisnadır, onun sırası aşağıda ayrıca qurulur
     for (const channel of result) {
+        if (channel.id === "russia1") continue;
+
         const items = channel.urls.map((url, i) => ({
             url,
             source: channel.sources[i]
@@ -428,6 +452,23 @@ function buildChannels(entries) {
         channel.sources = items.map(item => item.source);
     }
 
+    // Россия 1: əvvəl custom, sonra extra, sonra playlistdən gələnlər
+    const r1 = byId.get("russia1");
+
+    if (r1) {
+        const first = [
+            ...(CUSTOM_STREAMS.russia1 || []),
+            ...(EXTRA_STREAMS.russia1 || [])
+        ];
+
+        const rest = r1.urls.filter(url => !first.includes(url));
+
+        const ordered = [...new Set([...first, ...rest])];
+
+        r1.urls = ordered;
+        r1.sources = ordered.map(() => "Russia 1 source");
+    }
+
     return result;
 }
 
@@ -435,9 +476,6 @@ function buildChannels(entries) {
 /* ============================================
    STREAM HEALTH CHECK (kanalı SİLMİR, yalnız sıralayır)
    Qaytarır: "ok" | "bad" | "unknown"
-   - ok      : playlist oxundu və düzgündür
-   - bad     : server aydın şəkildə xəta verdi / playlist yanlışdır
-   - unknown : CORS / timeout / şəbəkə xətası (yayım yenə də işləyə bilər)
 ============================================ */
 
 async function probeUrl(url, timeoutMs = 8000) {
@@ -502,7 +540,8 @@ async function verifyChannels(list) {
                 source: channel.sources[i],
                 state: states[i]
             }))
-            .filter(item => item.state !== "bad")
+            // Россия 1 üçün "bad" ünvanlar da saxlanılır (sonda)
+            .filter(item => item.state !== "bad" || channel.id === "russia1")
             .sort((a, b) => rank[a.state] - rank[b.state]);
 
         channel.urls = items.map(item => item.url);
@@ -510,14 +549,17 @@ async function verifyChannels(list) {
 
         if (items.some(item => item.state === "ok")) {
             channel.status = "ok";
-        } else if (items.length > 0) {
+        } else if (items.some(item => item.state === "unknown")) {
             channel.status = "unknown";
         } else {
             channel.status = "bad";
         }
 
         console.log(
-            `Health check: ${channel.name} - ${channel.status} (${items.length}/${candidates.length} usable)`
+            `Health check: ${channel.name} - ${channel.status} (${items.length}/${candidates.length} usable)`,
+            channel.id === "russia1"
+                ? items.map(item => `${item.state}: ${item.url}`)
+                : ""
         );
 
         // Hər kanal bitdikcə siyahını yenilə
@@ -569,7 +611,7 @@ async function loadChannels() {
     channels = buildChannels(entries);
 
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v7`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v9`;
 
     renderChannels();
 
@@ -580,7 +622,7 @@ async function loadChannels() {
         const ok = channels.filter(c => c.status === "ok").length;
 
         sourceInfo.textContent =
-            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v7`;
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v9`;
     });
 }
 
