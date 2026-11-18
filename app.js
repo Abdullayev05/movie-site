@@ -5,28 +5,10 @@
 ============================================ */
 
 const PLAYLISTS = [
-    { name: "Russia",     url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
-    { name: "Belarus",    url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
+    { name: "Russia", url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
+    { name: "Belarus", url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
     { name: "Azerbaijan", url: "https://iptv-org.github.io/iptv/countries/az.m3u" }
 ];
-
-
-/* ============================================
-   PROXY (yalnız aşağıdakı kanallar üçün)
-   Digər kanallara (NTV və s.) TOXUNMUR - onlar əvvəlki kimi işləyir.
-   Cloudflare Worker ünvanınızı SIZIN-AD əvəzinə yazın.
-   Məsələn: https://tvproxy.ali123.workers.dev/?url=
-============================================ */
-
-const PROXY = "https://tvproxy.SIZIN-AD.workers.dev/?url=";
-const PROXY_ENABLED = !PROXY.includes("SIZIN-AD");
-
-// Yalnız bu kanallar proxy istifadə edir
-const PROXY_CHANNELS = ["russia1", "mir24"];
-
-function proxied(url) {
-    return PROXY + encodeURIComponent(url);
-}
 
 
 /*
@@ -48,15 +30,7 @@ const EXTRA_STREAMS = {
 
     russia1: [
         "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8",
-        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8",
-        "http://cdnmg.secure.live.rtr-vesti.ru/hls/russia_hd/playlist_4.m3u8",
-        "http://a3569458063-s26881.cdn.ngenix.net/hls/russia_hd/playlist_4.m3u8",
-        "http://zabava-htlive.cdn.ngenix.net/hls/CH_RUSSIA1/bw2000000/variant.m3u8?version=2",
-        "http://stream-nexttv.comboplayer.ru/hlsl/1/Rossiya_HD/04.m3u8",
-        "http://hls.peers.tv/streaming/rossija/126/tvrec/playlist.m3u8",
-        "http://slynet.8nio.com/p/russia1_sly.m3u8",
-        "http://87.226.185.237:8080/hls/r1-chita_576p.m3u8",
-        "http://tv-online.gtrkchita.ru:8080/hls/r1-chita_360p.m3u8"
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8"
     ],
 
     perviy: [
@@ -68,34 +42,11 @@ const EXTRA_STREAMS = {
 
     by2: [],
 
-    by4: [],
-
     ntv: [
         "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
     ],
-
     pobeda: [
-        "https://sc.id-tv.kz/Pobeda.m3u8",
-        "https://fs.uplink.kz/pobeda/mono.m3u8?token=onlinetv",
-        "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8",
-        "http://s1.merlive.am/pobeda/index.m3u8",
-        "http://tv.tvip-media.net/pobeda/index.m3u8",
-        "http://str2.iptvhd.ru:8080/Pobeda/index.m3u8",
-        "http://176.222.190.76/btv/SWM/Pobeda/Pobeda.m3u8",
-        "http://87.247.44.26/btv/SWM/Pobeda/Pobeda.m3u8",
-        "http://46.34.209.243/btv/SWM/Pobeda/Pobeda_576p_2000kbps.m3u8"
-    ],
-
-    mir24: [
-        "https://sc.id-tv.kz/Mir24.m3u8",
-        "http://65.21.85.175:8000/play/a029/index.m3u8?token=livetv",
-        "http://65.21.85.175:8000/play/a00q/index.m3u8?token=livetv",
-        "http://185.220.35.228:8000/play/mir24a/index.m3u8?token=tokenforall123",
-        "https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/playlist.m3u8",
-        "http://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/playlist.m3u8",
-        "http://hls-mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/tracks-v1a1/mono.m3u8",
-        "http://178.212.71.253:8000/play/82/index.m3u8",
-        "http://178.212.71.253:8000/play/80/index.m3u8"
+        "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"
     ]
 };
 
@@ -116,8 +67,7 @@ const CHANNEL_DEFINITIONS = [
         id: "russia1",
         name: "Россия 1",
         aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
-        category: "news",
-        official: "https://smotrim.ru/live/1"
+        category: "news"
     },
     {
         id: "russia24",
@@ -144,14 +94,20 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["zvezda", "звезда"],
         category: "news"
     },
-    {
+        {
         id: "pobeda",
         name: "Победа",
         aliases: ["pobeda", "победа", "pobeda tv"],
         category: "movie",
         official: "https://pobeda.tv/home"
     },
-
+    {
+        id: "perviy",
+        name: "Первый канал",
+        aliases: ["channel one russia", "perviy kanal", "первый канал", "1tv"],
+        category: "news",
+        official: "https://www.1tv.ru/live"
+    },
     /* Belarus */
     {
         id: "by1",
@@ -165,12 +121,6 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["belarus 2", "беларусь 2"],
         category: "movie",
         official: "https://www.tvr.by"
-    },
-    {
-        id: "by24",
-        name: "Беларусь 24",
-        aliases: ["belarus 24", "беларусь 24"],
-        category: "news"
     },
     {
         id: "by3",
@@ -191,12 +141,11 @@ const CHANNEL_DEFINITIONS = [
         category: "movie"
     },
     {
-        id: "perviy",
-        name: "Первый канал",
-        aliases: ["channel one russia", "perviy kanal", "первый канал", "1tv"],
-        category: "news",
-        official: "https://www.1tv.ru/live"
-    }
+        id: "by24",
+        name: "Беларусь 24",
+        aliases: ["belarus 24", "беларусь 24"],
+        category: "news"
+    },
 ];
 
 
@@ -241,9 +190,6 @@ let sourcePosition = 0;
 
 let startupTimer = null;
 let retryTimer = null;
-
-// Hər uğursuz yayımın səbəbi (diaqnostika üçün)
-let failLog = [];
 
 const START_TIMEOUT = 12000;
 const MAX_CANDIDATES = 15;
@@ -462,43 +408,6 @@ function buildChannels(entries) {
         }
     }
 
-    // Proxy: YALNIZ PROXY_CHANNELS siyahısındakı kanallar üçün
-    if (PROXY_ENABLED) {
-        for (const channel of result) {
-            if (!PROXY_CHANNELS.includes(channel.id)) continue;
-
-            const urls = [];
-            const sources = [];
-
-            channel.urls.forEach((url, i) => {
-                const src = channel.sources[i];
-
-                if (url.startsWith("http://") && location.protocol === "https:") {
-                    urls.push(proxied(url));
-                    sources.push(src + " (proxy)");
-                } else {
-                    urls.push(url);
-                    sources.push(src);
-                }
-            });
-
-            // https ünvanların proxy variantı da ehtiyat kimi
-            channel.urls.forEach((url, i) => {
-                if (url.startsWith("https://")) {
-                    const p = proxied(url);
-
-                    if (!urls.includes(p)) {
-                        urls.push(p);
-                        sources.push(channel.sources[i] + " (proxy)");
-                    }
-                }
-            });
-
-            channel.urls = urls;
-            channel.sources = sources;
-        }
-    }
-
     // https ünvanlar http-dən əvvəl (mixed content problemi üçün)
     for (const channel of result) {
         const items = channel.urls.map((url, i) => ({
@@ -657,24 +566,18 @@ async function loadChannels() {
     channels = buildChannels(entries);
 
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v9`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v7`;
 
     renderChannels();
 
     console.log("Channel results:", channels);
-
-    if (location.protocol === "https:" && !PROXY_ENABLED) {
-        console.warn(
-            "PROXY ünvanı yazılmayıb: Россия 1 və МИР 24 GitHub-da açılmaya bilər."
-        );
-    }
 
     // Yoxlama arxa fonda gedir, kanalı silmir
     verifyChannels(channels).then(() => {
         const ok = channels.filter(c => c.status === "ok").length;
 
         sourceInfo.textContent =
-            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v9`;
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v7`;
     });
 }
 
@@ -778,7 +681,6 @@ function playChannel(channel) {
 
     currentChannel = channel;
     sourcePosition = 0;
-    failLog = [];
 
     stopPlayer();
 
@@ -836,8 +738,6 @@ function startNextSource(session) {
 
     startupTimer = setTimeout(() => {
         if (session !== playbackId) return;
-
-        failLog.push({ url, reason: "timeout" });
 
         sourcePosition++;
         startNextSource(session);
@@ -914,13 +814,6 @@ function startHls(url, session) {
             response: data.response
         });
 
-        failLog.push({
-            url,
-            reason: data.details + (data.response && data.response.code
-                ? " (HTTP " + data.response.code + ")"
-                : "")
-        });
-
         sourcePosition++;
         startNextSource(session);
     });
@@ -945,8 +838,6 @@ function startNative(url, session) {
         if (session !== playbackId) return;
 
         video.removeEventListener("loadedmetadata", onLoaded);
-
-        failLog.push({ url, reason: "native error" });
 
         sourcePosition++;
         startNextSource(session);
@@ -1024,35 +915,8 @@ function showUnavailable(session) {
         currentHls = null;
     }
 
-    // Səbəbləri qısa şəkildə ekranda göstər
-    let reasonText = "";
-
-    if (failLog.length) {
-        const counts = {};
-
-        failLog.forEach(item => {
-            counts[item.reason] = (counts[item.reason] || 0) + 1;
-        });
-
-        reasonText = " Səbəb: " + Object.entries(counts)
-            .map(([reason, n]) => `${reason} ×${n}`)
-            .join(", ");
-
-        console.table(failLog);
-
-        // Aydın izah: kod olmadan manifestLoadError = brauzer serverə çata bilməyib
-        const needsProxy = PROXY_CHANNELS.includes(currentChannel.id);
-        const noHttpCode = failLog.every(item => !/HTTP \d+/.test(item.reason));
-
-        if (needsProxy && noHttpCode) {
-            reasonText += PROXY_ENABLED
-                ? " | Server cavab vermir və ya Rusiya IP-dən başqasını bloklayır."
-                : " | PROXY qurulmayıb: script.js-də PROXY sətrinə öz Worker ünvanınızı yazın.";
-        }
-    }
-
     showStatus(
-        "Bu kanal üçün işlək yayım ünvanı tapılmadı." + reasonText,
+        "Bu kanal üçün işlək yayım ünvanı tapılmadı.",
         "error"
     );
 
