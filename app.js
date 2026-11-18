@@ -48,7 +48,10 @@ const EXTRA_STREAMS = {
     pobeda: [
         "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"
     ],
-
+    mir24: [
+        "https://cdn-edge.mir24.tv/hls/mir24/index.m3u8",
+        "https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8"
+    ],
 };
 
 
@@ -83,9 +86,9 @@ const CHANNEL_DEFINITIONS = [
         category: "news"
     },
     {
-        id: "mir",
-        name: "МИР",
-        aliases: ["mir", "мир"],
+        id: "mir24",
+        name: "МИР 24",
+        aliases: ["mir 24", "мир 24", "mir24"],
         category: "news"
     },
     {
