@@ -5,8 +5,8 @@
 ============================================ */
 
 const PLAYLISTS = [
-    { name: "Russia",     url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
-    { name: "Belarus",    url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
+    { name: "Russia", url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
+    { name: "Belarus", url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
     { name: "Azerbaijan", url: "https://iptv-org.github.io/iptv/countries/az.m3u" }
 ];
 
@@ -79,10 +79,11 @@ const CHANNEL_DEFINITIONS = [
         category: "news"
     },
     {
-        id: "mir",
-        name: "МИР",
-        aliases: ["mir", "мир"],
-        category: "news"
+        id: "mir24",
+        name: "МИР 24",
+        aliases: ["mir 24", "mir24", "мир 24", "мир24"],
+        category: "news",
+        official: "https://mir24.tv"
     },
     {
         id: "zvezda",
@@ -118,11 +119,30 @@ const CHANNEL_DEFINITIONS = [
         category: "movie"
     },
     {
+        id: "by4",
+        name: "Беларусь 4",
+        aliases: ["belarus 4", "беларусь 4"],
+        category: "movie"
+    },
+    {
         id: "by5",
         name: "Беларусь 5",
         aliases: ["belarus 5", "беларусь 5"],
         category: "movie"
     },
+    // {
+    //     id: "ont",
+    //     name: "ОНТ",
+    //     aliases: ["ont", "онт"],
+    //     category: "news"
+    // },
+    // {
+    //     id: "stv",
+    //     name: "СТВ",
+    //     aliases: ["ctv belarus", "ctv", "ств"],
+    //     category: "news"
+    // },
+
     {
         id: "perviy",
         name: "Первый канал",
