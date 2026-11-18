@@ -24,7 +24,7 @@ const PROXY = "https://tvproxy.SIZIN-AD.workers.dev/?url=";
 const PROXY_ENABLED = !PROXY.includes("SIZIN-AD");
 
 // Bu kanallar üçün https ünvanların proxy variantı da ehtiyat kimi əlavə olunur (CORS üçün)
-const PROXY_ALWAYS = ["russia1", "pobeda"];
+const PROXY_ALWAYS = ["russia1", "ntv", "mir24", "pobeda"];
 
 function proxied(url) {
     return PROXY + encodeURIComponent(url);
@@ -51,7 +51,12 @@ const EXTRA_STREAMS = {
     russia1: [
         "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8",
         "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8",
-        "http://wpc.970A.edgecastcdn.net/80970A/HALO_Russia-1/hls/hls_russia-1/index.m3u8"
+        "http://cdnmg.secure.live.rtr-vesti.ru/hls/russia_hd/playlist_4.m3u8",
+        "http://a3569458063-s26881.cdn.ngenix.net/hls/russia_hd/playlist_4.m3u8",
+        "http://zabava-htlive.cdn.ngenix.net/hls/CH_RUSSIA1/bw2000000/variant.m3u8?version=2",
+        "http://stream-nexttv.comboplayer.ru/hlsl/1/Rossiya_HD/04.m3u8",
+        "http://hls.peers.tv/streaming/rossija/126/tvrec/playlist.m3u8",
+        "http://slynet.8nio.com/p/russia1_sly.m3u8"
     ],
 
     perviy: [
@@ -62,7 +67,10 @@ const EXTRA_STREAMS = {
     ],
 
     ntv: [
-        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
+        "https://cdn.ntv.ru/ntv0_hd/index.m3u8?filter.tracks=v3v4v5a1l1t1",
+        "https://cdn.ntv.ru/ntv0_hd/tracks-v1a1/playlist.m3u8",
+        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8",
+        "https://cdn.ntv.ru/ntv0/playlist.m3u8"
     ],
 
     pobeda: [
@@ -77,7 +85,14 @@ const EXTRA_STREAMS = {
         "http://46.34.209.243/btv/SWM/Pobeda/Pobeda_576p_2000kbps.m3u8"
     ],
 
-    mir24: [],
+    mir24: [
+        "https://sc.id-tv.kz/Mir24.m3u8",
+        "https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/playlist.m3u8",
+        "http://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/playlist.m3u8",
+        "http://hls-mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/tracks-v1a1/mono.m3u8",
+        "http://178.212.71.253:8000/play/82/index.m3u8",
+        "http://178.212.71.253:8000/play/80/index.m3u8"
+    ],
     by2: [],
     by4: []
 };
