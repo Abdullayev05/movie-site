@@ -5,8 +5,8 @@
 ============================================ */
 
 const PLAYLISTS = [
-    { name: "Russia",     url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
-    { name: "Belarus",    url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
+    { name: "Russia", url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
+    { name: "Belarus", url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
     { name: "Azerbaijan", url: "https://iptv-org.github.io/iptv/countries/az.m3u" }
 ];
 
@@ -29,8 +29,8 @@ const EXTRA_STREAMS = {
     ],
 
     russia1: [
-        "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8",
-        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8"
+        "https://corsproxy.io/?" + encodeURIComponent("https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8"),
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8")
     ],
 
     perviy: [
@@ -44,7 +44,11 @@ const EXTRA_STREAMS = {
 
     ntv: [
         "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
-    ]
+    ],
+    pobeda: [
+        "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"
+    ],
+
 };
 
 
@@ -90,7 +94,19 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["zvezda", "звезда"],
         category: "news"
     },
-
+    {
+        id: "pobeda",
+        name: "Победа",
+        aliases: ["pobeda", "победа", "pobeda tv"],
+        category: "movie"
+    },
+    {
+        id: "perviy",
+        name: "Первый канал",
+        aliases: ["channel one russia", "perviy kanal", "первый канал", "1tv"],
+        category: "news",
+        official: "https://www.1tv.ru/live"
+    },
     /* Belarus */
     {
         id: "by1",
@@ -106,15 +122,15 @@ const CHANNEL_DEFINITIONS = [
         official: "https://www.tvr.by"
     },
     {
-        id: "by24",
-        name: "Беларусь 24",
-        aliases: ["belarus 24", "беларусь 24"],
-        category: "news"
-    },
-    {
         id: "by3",
         name: "Беларусь 3",
         aliases: ["belarus 3", "беларусь 3"],
+        category: "movie"
+    },
+    {
+        id: "by4",
+        name: "Беларусь 4",
+        aliases: ["belarus 4", "беларусь 4"],
         category: "movie"
     },
     {
@@ -123,26 +139,12 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["belarus 5", "беларусь 5"],
         category: "movie"
     },
-    // {
-    //     id: "ont",
-    //     name: "ОНТ",
-    //     aliases: ["ont", "онт"],
-    //     category: "news"
-    // },
-    // {
-    //     id: "stv",
-    //     name: "СТВ",
-    //     aliases: ["ctv belarus", "ctv", "ств"],
-    //     category: "news"
-    // },
-
     {
-        id: "perviy",
-        name: "Первый канал",
-        aliases: ["channel one russia", "perviy kanal", "первый канал", "1tv"],
-        category: "news",
-        official: "https://www.1tv.ru/live"
-    }
+        id: "by24",
+        name: "Беларусь 24",
+        aliases: ["belarus 24", "беларусь 24"],
+        category: "news"
+    },
 ];
 
 
