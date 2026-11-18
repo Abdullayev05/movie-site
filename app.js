@@ -53,6 +53,9 @@ const EXTRA_STREAMS = {
 
     by2: [],
 
+    // Öz tapdığın МИР 24 .m3u8 linkini bura yaz (https olması məsləhətdir)
+    mir24: [],
+
     ntv: [
         "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
     ],
@@ -94,10 +97,9 @@ const CHANNEL_DEFINITIONS = [
         category: "news"
     },
     {
-        // "mir" / "мир" aliası ƏLAVƏ OLUNDU: playlistlərdə kanal çox vaxt sadəcə "МИР" adlanır
         id: "mir24",
         name: "МИР 24",
-        aliases: ["mir 24", "мир 24", "mir24", "mir", "мир"],
+        aliases: ["mir 24", "мир 24", "mir24"],
         category: "news",
         official: "https://mir24.tv/live"
     },
