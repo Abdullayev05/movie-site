@@ -12,19 +12,17 @@ const PLAYLISTS = [
 
 
 /* ============================================
-   PROXY (GitHub Pages https üçün)
-   Cloudflare Worker qurandan sonra SIZIN-AD hissəsini
-   öz worker ünvanınızla əvəz edin.
+   PROXY (yalnız aşağıdakı kanallar üçün)
+   Digər kanallara (NTV və s.) TOXUNMUR - onlar əvvəlki kimi işləyir.
+   Cloudflare Worker ünvanınızı SIZIN-AD əvəzinə yazın.
    Məsələn: https://tvproxy.ali123.workers.dev/?url=
 ============================================ */
 
 const PROXY = "https://tvproxy.SIZIN-AD.workers.dev/?url=";
-
-// Proxy yalnız düzgün ünvan yazılıbsa aktiv olur
 const PROXY_ENABLED = !PROXY.includes("SIZIN-AD");
 
-// Bu kanallar üçün https ünvanların proxy variantı da ehtiyat kimi əlavə olunur (CORS üçün)
-const PROXY_ALWAYS = ["russia1", "ntv", "mir24", "pobeda"];
+// Yalnız bu kanallar proxy istifadə edir
+const PROXY_CHANNELS = ["russia1", "mir24"];
 
 function proxied(url) {
     return PROXY + encodeURIComponent(url);
@@ -68,11 +66,12 @@ const EXTRA_STREAMS = {
         "https://streaming.thestream.cyou/live/210-req_offset_28000000-req_window_0-1k_v5.m3u8"
     ],
 
+    by2: [],
+
+    by4: [],
+
     ntv: [
-        "https://cdn.ntv.ru/ntv0_hd/index.m3u8?filter.tracks=v3v4v5a1l1t1",
-        "https://cdn.ntv.ru/ntv0_hd/tracks-v1a1/playlist.m3u8",
-        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8",
-        "https://cdn.ntv.ru/ntv0/playlist.m3u8"
+        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
     ],
 
     pobeda: [
@@ -97,9 +96,7 @@ const EXTRA_STREAMS = {
         "http://hls-mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/tracks-v1a1/mono.m3u8",
         "http://178.212.71.253:8000/play/82/index.m3u8",
         "http://178.212.71.253:8000/play/80/index.m3u8"
-    ],
-    by2: [],
-    by4: []
+    ]
 };
 
 
@@ -465,9 +462,11 @@ function buildChannels(entries) {
         }
     }
 
-    // Proxy: GitHub Pages (https) http yayımları birbaşa açmır
+    // Proxy: YALNIZ PROXY_CHANNELS siyahısındakı kanallar üçün
     if (PROXY_ENABLED) {
         for (const channel of result) {
+            if (!PROXY_CHANNELS.includes(channel.id)) continue;
+
             const urls = [];
             const sources = [];
 
@@ -483,19 +482,17 @@ function buildChannels(entries) {
                 }
             });
 
-            // Seçilmiş kanallar: https ünvanların proxy variantı ehtiyat kimi
-            if (PROXY_ALWAYS.includes(channel.id)) {
-                channel.urls.forEach((url, i) => {
-                    if (url.startsWith("https://")) {
-                        const p = proxied(url);
+            // https ünvanların proxy variantı da ehtiyat kimi
+            channel.urls.forEach((url, i) => {
+                if (url.startsWith("https://")) {
+                    const p = proxied(url);
 
-                        if (!urls.includes(p)) {
-                            urls.push(p);
-                            sources.push(channel.sources[i] + " (proxy)");
-                        }
+                    if (!urls.includes(p)) {
+                        urls.push(p);
+                        sources.push(channel.sources[i] + " (proxy)");
                     }
-                });
-            }
+                }
+            });
 
             channel.urls = urls;
             channel.sources = sources;
@@ -660,7 +657,7 @@ async function loadChannels() {
     channels = buildChannels(entries);
 
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v8`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v9`;
 
     renderChannels();
 
@@ -668,7 +665,7 @@ async function loadChannels() {
 
     if (location.protocol === "https:" && !PROXY_ENABLED) {
         console.warn(
-            "PROXY ünvanı yazılmayıb. http yayımlar (məs. Россия 1) GitHub-da açılmaya bilər."
+            "PROXY ünvanı yazılmayıb: Россия 1 və МИР 24 GitHub-da açılmaya bilər."
         );
     }
 
@@ -677,7 +674,7 @@ async function loadChannels() {
         const ok = channels.filter(c => c.status === "ok").length;
 
         sourceInfo.textContent =
-            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v8`;
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v9`;
     });
 }
 
@@ -840,7 +837,7 @@ function startNextSource(session) {
     startupTimer = setTimeout(() => {
         if (session !== playbackId) return;
 
-        failLog.push({ url, reason: "timeout (12s)" });
+        failLog.push({ url, reason: "timeout" });
 
         sourcePosition++;
         startNextSource(session);
@@ -948,6 +945,8 @@ function startNative(url, session) {
         if (session !== playbackId) return;
 
         video.removeEventListener("loadedmetadata", onLoaded);
+
+        failLog.push({ url, reason: "native error" });
 
         sourcePosition++;
         startNextSource(session);
