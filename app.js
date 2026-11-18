@@ -49,8 +49,8 @@ const EXTRA_STREAMS = {
         "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"
     ],
     mir24: [
-        "https://live-mir24.cdnvideo.ru/mir24/tracks-v1a1/mono.m3u8",
-        "https://corsproxy.io/?https://live-mir24.cdnvideo.ru/mir24/tracks-v1a1/mono.m3u8"
+        "https://cdn-edge.mir24.tv/hls/mir24/index.m3u8",
+        "https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8"
     ],
     matchtv: [
         "https://matchtv-hls.cdnvideo.ru/matchtv/smil:matchtv.smil/playlist.m3u8",
@@ -73,30 +73,30 @@ const CHANNEL_DEFINITIONS = [
         category: "movie",
         official: "https://www.mosfilm.ru/cinema/"
     },
-    {
-        id: "russia1",
-        name: "Россия 1",
-        aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
-        category: "news"
-    },
+    // {
+    //     id: "russia1",
+    //     name: "Россия 1",
+    //     aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
+    //     category: "news"
+    // },
     {
         id: "russia24",
         name: "Россия 24",
         aliases: ["russia-24", "russia 24", "россия-24", "россия 24"],
         category: "news"
     },
-    {
-        id: "ntv",
-        name: "НТВ",
-        aliases: ["ntv", "нтв"],
-        category: "news"
-    },
-    {
-        id: "mir24",
-        name: "МИР 24",
-        aliases: ["mir 24", "мир 24", "mir24"],
-        category: "news"
-    },
+    // {
+    //     id: "ntv",
+    //     name: "НТВ",
+    //     aliases: ["ntv", "нтв"],
+    //     category: "news"
+    // },
+    // {
+    //     id: "mir24",
+    //     name: "МИР 24",
+    //     aliases: ["mir 24", "мир 24", "mir24"],
+    //     category: "news"
+    // },
     {
         id: "zvezda",
         name: "Звезда",
