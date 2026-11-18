@@ -49,8 +49,8 @@ const EXTRA_STREAMS = {
         "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"
     ],
     mir24: [
-        "https://corsproxy.io/?" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8"),
-        "https://corsproxy.io/?" + encodeURIComponent("https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8")
+        "https://live-mir24.cdnvideo.ru/mir24/tracks-v1a1/mono.m3u8",
+        "https://corsproxy.io/?https://live-mir24.cdnvideo.ru/mir24/tracks-v1a1/mono.m3u8"
     ],
     matchtv: [
         "https://matchtv-hls.cdnvideo.ru/matchtv/smil:matchtv.smil/playlist.m3u8",
