@@ -94,12 +94,11 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["zvezda", "звезда"],
         category: "news"
     },
-        {
+    {
         id: "pobeda",
         name: "Победа",
         aliases: ["pobeda", "победа", "pobeda tv"],
-        category: "movie",
-        official: "https://pobeda.tv/home"
+        category: "movie"
     },
     {
         id: "perviy",
@@ -145,7 +144,7 @@ const CHANNEL_DEFINITIONS = [
         name: "Беларусь 24",
         aliases: ["belarus 24", "беларусь 24"],
         category: "news"
-    },
+    }
 ];
 
 
@@ -179,6 +178,7 @@ const connectionDot = document.getElementById("connectionDot");
 let channels = [];
 
 let currentChannel = null;
+let currentUrls = [];          // oxunma zamanı URL-lərin surəti
 let currentHls = null;
 
 let currentCategory = "all";
@@ -193,6 +193,7 @@ let retryTimer = null;
 
 const START_TIMEOUT = 12000;
 const MAX_CANDIDATES = 15;
+const IS_HTTPS_PAGE = location.protocol === "https:";
 
 
 /* ============================================
@@ -354,6 +355,7 @@ function findDefinition(entry) {
             if (
                 channelName === normalizedAlias ||
                 channelName.startsWith(normalizedAlias + " ") ||
+                channelName.endsWith(" " + normalizedAlias) ||
                 channelName.includes(" " + normalizedAlias + " ")
             ) {
                 return definition;
@@ -408,13 +410,18 @@ function buildChannels(entries) {
         }
     }
 
-    // https ünvanlar http-dən əvvəl (mixed content problemi üçün)
     for (const channel of result) {
-        const items = channel.urls.map((url, i) => ({
+        let items = channel.urls.map((url, i) => ({
             url,
             source: channel.sources[i]
         }));
 
+        // https səhifədə http yayımlar brauzer tərəfindən bloklanır (mixed content)
+        if (IS_HTTPS_PAGE) {
+            items = items.filter(item => item.url.startsWith("https://"));
+        }
+
+        // https ünvanlar http-dən əvvəl
         items.sort((a, b) => {
             const aHttps = a.url.startsWith("https://") ? 0 : 1;
             const bHttps = b.url.startsWith("https://") ? 0 : 1;
@@ -430,7 +437,7 @@ function buildChannels(entries) {
 
 
 /* ============================================
-   STREAM HEALTH CHECK (kanalı SİLMİR, yalnız sıralayır)
+   STREAM HEALTH CHECK
    Qaytarır: "ok" | "bad" | "unknown"
    - ok      : playlist oxundu və düzgündür
    - bad     : server aydın şəkildə xəta verdi / playlist yanlışdır
@@ -489,11 +496,20 @@ async function verifyChannels(list) {
     await Promise.all(list.map(async channel => {
         const candidates = channel.urls.slice(0, MAX_CANDIDATES);
 
+        // Yoxlanmayan (limitdən artıq) ünvanlar itməsin
+        const rest = channel.urls
+            .slice(MAX_CANDIDATES)
+            .map((url, i) => ({
+                url,
+                source: channel.sources[MAX_CANDIDATES + i],
+                state: "unknown"
+            }));
+
         const states = await Promise.all(
             candidates.map(url => probeUrl(url))
         );
 
-        const items = candidates
+        const checked = candidates
             .map((url, i) => ({
                 url,
                 source: channel.sources[i],
@@ -501,6 +517,8 @@ async function verifyChannels(list) {
             }))
             .filter(item => item.state !== "bad")
             .sort((a, b) => rank[a.state] - rank[b.state]);
+
+        const items = checked.concat(rest);
 
         channel.urls = items.map(item => item.url);
         channel.sources = items.map(item => item.source);
@@ -514,7 +532,7 @@ async function verifyChannels(list) {
         }
 
         console.log(
-            `Health check: ${channel.name} - ${channel.status} (${items.length}/${candidates.length} usable)`
+            `Health check: ${channel.name} - ${channel.status} (${checked.length}/${candidates.length} usable)`
         );
 
         // Hər kanal bitdikcə siyahını yenilə
@@ -566,7 +584,7 @@ async function loadChannels() {
     channels = buildChannels(entries);
 
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v7`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v8`;
 
     renderChannels();
 
@@ -577,7 +595,7 @@ async function loadChannels() {
         const ok = channels.filter(c => c.status === "ok").length;
 
         sourceInfo.textContent =
-            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v7`;
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v8`;
     });
 }
 
@@ -587,6 +605,8 @@ async function loadChannels() {
 ============================================ */
 
 function renderChannels() {
+    const scrollTop = channelList.scrollTop;
+
     channelList.innerHTML = "";
 
     const filtered = channels.filter(channel => {
@@ -667,6 +687,7 @@ function renderChannels() {
     });
 
     channelList.appendChild(fragment);
+    channelList.scrollTop = scrollTop;
 }
 
 
@@ -680,6 +701,7 @@ function playChannel(channel) {
     const session = playbackId;
 
     currentChannel = channel;
+    currentUrls = channel.urls.slice();   // surət: arxa fon yoxlaması dəyişməsin
     sourcePosition = 0;
 
     stopPlayer();
@@ -695,7 +717,7 @@ function playChannel(channel) {
     setConnected(false);
     setInfo("Connecting to " + channel.name);
 
-    if (!channel.urls.length) {
+    if (!currentUrls.length) {
         showUnavailable(session);
         return;
     }
@@ -720,20 +742,20 @@ function startNextSource(session) {
         currentHls = null;
     }
 
-    if (sourcePosition >= currentChannel.urls.length) {
+    if (sourcePosition >= currentUrls.length) {
         showUnavailable(session);
         return;
     }
 
-    const url = currentChannel.urls[sourcePosition];
+    const url = currentUrls[sourcePosition];
 
     console.log(
-        `Trying ${sourcePosition + 1}/${currentChannel.urls.length}:`,
+        `Trying ${sourcePosition + 1}/${currentUrls.length}:`,
         url
     );
 
     showStatus(
-        `Yayım yoxlanılır (${sourcePosition + 1}/${currentChannel.urls.length})...`
+        `Yayım yoxlanılır (${sourcePosition + 1}/${currentUrls.length})...`
     );
 
     startupTimer = setTimeout(() => {
@@ -789,6 +811,8 @@ function startHls(url, session) {
 
     currentHls = player;
 
+    let mediaRecovered = false;
+
     player.on(Hls.Events.MEDIA_ATTACHED, () => {
         if (session !== playbackId) return;
 
@@ -814,6 +838,13 @@ function startHls(url, session) {
             response: data.response
         });
 
+        // Media xətasında əvvəlcə bir dəfə bərpa cəhdi
+        if (data.type === Hls.ErrorTypes.MEDIA_ERROR && !mediaRecovered) {
+            mediaRecovered = true;
+            player.recoverMediaError();
+            return;
+        }
+
         sourcePosition++;
         startNextSource(session);
     });
@@ -831,13 +862,15 @@ function startNative(url, session) {
 
     const onLoaded = () => {
         if (session !== playbackId) return;
+
+        video.removeEventListener("error", onError);
         playVideo(session);
     };
 
     const onError = () => {
-        if (session !== playbackId) return;
-
         video.removeEventListener("loadedmetadata", onLoaded);
+
+        if (session !== playbackId) return;
 
         sourcePosition++;
         startNextSource(session);
@@ -863,6 +896,8 @@ function playVideo(session) {
 
             clearTimers();
             hideStatus();
+
+            if (currentChannel) currentChannel.status = "ok";
 
             setConnected(true);
             setInfo("Playing: " + currentChannel.name);
@@ -1006,6 +1041,7 @@ async function initialize() {
 
     try {
         await loadChannels();
+        setInfo("Ready to watch");
     } catch (error) {
         console.error("Application initialization error:", error);
 
@@ -1017,9 +1053,8 @@ async function initialize() {
         `;
 
         sourceInfo.textContent = "Playlist loading failed";
+        setInfo("Error");
     }
-
-    setInfo("Ready to watch");
 }
 
 initialize();
