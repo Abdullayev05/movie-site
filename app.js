@@ -49,9 +49,15 @@ const EXTRA_STREAMS = {
         "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"
     ],
     mir24: [
-        "https://cdn-edge.mir24.tv/hls/mir24/index.m3u8",
-        "https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8"
+        "https://corsproxy.io/?" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8"),
+        "https://corsproxy.io/?" + encodeURIComponent("https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8")
     ],
+    matchtv: [
+        "https://matchtv-hls.cdnvideo.ru/matchtv/smil:matchtv.smil/playlist.m3u8",
+        "https://strm.yandex.ru/kal/match/match0.m3u8",
+        "https://okkotv-live.cdnvideo.ru/channel/Match_TV.m3u8"
+    ],
+    
 };
 
 
@@ -148,6 +154,13 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["belarus 24", "беларусь 24"],
         category: "news"
     },
+    {
+        id: "matchtv",
+        name: "Матч ТВ",
+        aliases: ["match tv", "матч тв", "match!"],
+        category: "sport"
+    },
+   
 ];
 
 
