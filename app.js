@@ -1039,6 +1039,16 @@ function showUnavailable(session) {
             .join(", ");
 
         console.table(failLog);
+
+        // Aydın izah: kod olmadan manifestLoadError = brauzer serverə çata bilməyib
+        const needsProxy = PROXY_CHANNELS.includes(currentChannel.id);
+        const noHttpCode = failLog.every(item => !/HTTP \d+/.test(item.reason));
+
+        if (needsProxy && noHttpCode) {
+            reasonText += PROXY_ENABLED
+                ? " | Server cavab vermir və ya Rusiya IP-dən başqasını bloklayır."
+                : " | PROXY qurulmayıb: script.js-də PROXY sətrinə öz Worker ünvanınızı yazın.";
+        }
     }
 
     showStatus(
