@@ -5,8 +5,8 @@
 ============================================ */
 
 const PLAYLISTS = [
-    { name: "Russia", url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
-    { name: "Belarus", url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
+    { name: "Russia",     url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
+    { name: "Belarus",    url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
     { name: "Azerbaijan", url: "https://iptv-org.github.io/iptv/countries/az.m3u" }
 ];
 
@@ -61,6 +61,12 @@ const CHANNEL_DEFINITIONS = [
         official: "https://www.mosfilm.ru/cinema/"
     },
     {
+        id: "russia1",
+        name: "Россия 1",
+        aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
+        category: "news"
+    },
+    {
         id: "russia24",
         name: "Россия 24",
         aliases: ["russia-24", "russia 24", "россия-24", "россия 24"],
@@ -84,13 +90,7 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["zvezda", "звезда"],
         category: "news"
     },
-    {
-        id: "perviy",
-        name: "Первый канал",
-        aliases: ["channel one russia", "perviy kanal", "первый канал", "1tv"],
-        category: "news",
-        official: "https://www.1tv.ru/live"
-    }
+
     /* Belarus */
     {
         id: "by1",
@@ -106,15 +106,15 @@ const CHANNEL_DEFINITIONS = [
         official: "https://www.tvr.by"
     },
     {
+        id: "by24",
+        name: "Беларусь 24",
+        aliases: ["belarus 24", "беларусь 24"],
+        category: "news"
+    },
+    {
         id: "by3",
         name: "Беларусь 3",
         aliases: ["belarus 3", "беларусь 3"],
-        category: "movie"
-    },
-    {
-        id: "by4",
-        name: "Беларусь 4",
-        aliases: ["belarus 4", "беларусь 4"],
         category: "movie"
     },
     {
@@ -123,13 +123,26 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["belarus 5", "беларусь 5"],
         category: "movie"
     },
-    {
-        id: "by24",
-        name: "Беларусь 24",
-        aliases: ["belarus 24", "беларусь 24"],
-        category: "news"
-    },
+    // {
+    //     id: "ont",
+    //     name: "ОНТ",
+    //     aliases: ["ont", "онт"],
+    //     category: "news"
+    // },
+    // {
+    //     id: "stv",
+    //     name: "СТВ",
+    //     aliases: ["ctv belarus", "ctv", "ств"],
+    //     category: "news"
+    // },
 
+    {
+        id: "perviy",
+        name: "Первый канал",
+        aliases: ["channel one russia", "perviy kanal", "первый канал", "1tv"],
+        category: "news",
+        official: "https://www.1tv.ru/live"
+    }
 ];
 
 
