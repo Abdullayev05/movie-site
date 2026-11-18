@@ -110,7 +110,7 @@ const CHANNEL_DEFINITIONS = [
         category: "news",
         official: "https://www.1tv.ru/live"
     },
-    /* Belarus */
+    /*Belarus*/
     {
         id: "by1",
         name: "Беларусь 1",
