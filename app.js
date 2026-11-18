@@ -28,6 +28,11 @@ const EXTRA_STREAMS = {
         "https://stream.smotrim.ru/hls2/russia24nl_smotrim/playlist_5.m3u8"
     ],
 
+    russia1: [
+        "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8",
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8"
+    ],
+
     perviy: [
         "https://okkotv-live.cdnvideo.ru/channel/Pervii_Kanal_OTT_HD.m3u8",
         "http://178.212.71.253:8000/play/1/index.m3u8",
@@ -37,14 +42,8 @@ const EXTRA_STREAMS = {
 
     by2: [],
 
-    by4: [],
-
     ntv: [
         "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
-    ],
-
-    pobeda: [
-        "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"
     ]
 };
 
@@ -60,6 +59,12 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["mosfilm", "mosfilm gold collection"],
         category: "movie",
         official: "https://www.mosfilm.ru/cinema/"
+    },
+    {
+        id: "russia1",
+        name: "Россия 1",
+        aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
+        category: "news"
     },
     {
         id: "russia24",
@@ -84,12 +89,6 @@ const CHANNEL_DEFINITIONS = [
         name: "Звезда",
         aliases: ["zvezda", "звезда"],
         category: "news"
-    },
-    {
-        id: "pobeda",
-        name: "Победа",
-        aliases: ["pobeda", "победа", "pobeda tv"],
-        category: "movie"
     },
 
     /* Belarus */
@@ -119,18 +118,11 @@ const CHANNEL_DEFINITIONS = [
         category: "movie"
     },
     {
-        id: "by4",
-        name: "Беларусь 4",
-        aliases: ["belarus 4", "беларусь 4"],
-        category: "news"
-    },
-    {
         id: "by5",
         name: "Беларусь 5",
         aliases: ["belarus 5", "беларусь 5"],
         category: "movie"
     },
-
     {
         id: "perviy",
         name: "Первый канал",
@@ -558,7 +550,7 @@ async function loadChannels() {
     channels = buildChannels(entries);
 
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v8`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v7`;
 
     renderChannels();
 
@@ -569,7 +561,7 @@ async function loadChannels() {
         const ok = channels.filter(c => c.status === "ok").length;
 
         sourceInfo.textContent =
-            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v8`;
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v7`;
     });
 }
 
