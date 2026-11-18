@@ -56,7 +56,9 @@ const EXTRA_STREAMS = {
         "http://zabava-htlive.cdn.ngenix.net/hls/CH_RUSSIA1/bw2000000/variant.m3u8?version=2",
         "http://stream-nexttv.comboplayer.ru/hlsl/1/Rossiya_HD/04.m3u8",
         "http://hls.peers.tv/streaming/rossija/126/tvrec/playlist.m3u8",
-        "http://slynet.8nio.com/p/russia1_sly.m3u8"
+        "http://slynet.8nio.com/p/russia1_sly.m3u8",
+        "http://87.226.185.237:8080/hls/r1-chita_576p.m3u8",
+        "http://tv-online.gtrkchita.ru:8080/hls/r1-chita_360p.m3u8"
     ],
 
     perviy: [
@@ -67,7 +69,10 @@ const EXTRA_STREAMS = {
     ],
 
     ntv: [
-        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
+        "https://cdn.ntv.ru/ntv0_hd/index.m3u8?filter.tracks=v3v4v5a1l1t1",
+        "https://cdn.ntv.ru/ntv0_hd/tracks-v1a1/playlist.m3u8",
+        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8",
+        "https://cdn.ntv.ru/ntv0/playlist.m3u8"
     ],
 
     pobeda: [
@@ -84,6 +89,9 @@ const EXTRA_STREAMS = {
 
     mir24: [
         "https://sc.id-tv.kz/Mir24.m3u8",
+        "http://65.21.85.175:8000/play/a029/index.m3u8?token=livetv",
+        "http://65.21.85.175:8000/play/a00q/index.m3u8?token=livetv",
+        "http://185.220.35.228:8000/play/mir24a/index.m3u8?token=tokenforall123",
         "https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/playlist.m3u8",
         "http://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/playlist.m3u8",
         "http://hls-mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/tracks-v1a1/mono.m3u8",
@@ -121,7 +129,7 @@ const CHANNEL_DEFINITIONS = [
         category: "news"
     },
     {
-       id: "ntv",
+        id: "ntv",
         name: "НТВ",
         aliases: ["ntv", "нтв"],
         category: "news"
@@ -236,6 +244,9 @@ let sourcePosition = 0;
 
 let startupTimer = null;
 let retryTimer = null;
+
+// Hər uğursuz yayımın səbəbi (diaqnostika üçün)
+let failLog = [];
 
 const START_TIMEOUT = 12000;
 const MAX_CANDIDATES = 15;
@@ -770,6 +781,7 @@ function playChannel(channel) {
 
     currentChannel = channel;
     sourcePosition = 0;
+    failLog = [];
 
     stopPlayer();
 
@@ -827,6 +839,8 @@ function startNextSource(session) {
 
     startupTimer = setTimeout(() => {
         if (session !== playbackId) return;
+
+        failLog.push({ url, reason: "timeout (12s)" });
 
         sourcePosition++;
         startNextSource(session);
@@ -901,6 +915,13 @@ function startHls(url, session) {
             type: data.type,
             details: data.details,
             response: data.response
+        });
+
+        failLog.push({
+            url,
+            reason: data.details + (data.response && data.response.code
+                ? " (HTTP " + data.response.code + ")"
+                : "")
         });
 
         sourcePosition++;
@@ -1004,8 +1025,25 @@ function showUnavailable(session) {
         currentHls = null;
     }
 
+    // Səbəbləri qısa şəkildə ekranda göstər
+    let reasonText = "";
+
+    if (failLog.length) {
+        const counts = {};
+
+        failLog.forEach(item => {
+            counts[item.reason] = (counts[item.reason] || 0) + 1;
+        });
+
+        reasonText = " Səbəb: " + Object.entries(counts)
+            .map(([reason, n]) => `${reason} ×${n}`)
+            .join(", ");
+
+        console.table(failLog);
+    }
+
     showStatus(
-        "Bu kanal üçün işlək yayım ünvanı tapılmadı.",
+        "Bu kanal üçün işlək yayım ünvanı tapılmadı." + reasonText,
         "error"
     );
 
