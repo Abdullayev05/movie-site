@@ -4,6 +4,13 @@
    TV KINO - CHANNEL CONFIGURATION
 ============================================ */
 
+/*
+    PROXY_URL: Cloudflare Worker ünvanın (worker.js faylına bax).
+    Nümunə: "https://tv-proxy.sizin-ad.workers.dev"
+    Boş buraxsan proxy istifadə olunmur (GitHub Pages-də http yayımlar işləməyəcək).
+*/
+const PROXY_URL = "";
+
 const PLAYLISTS = [
     { name: "Russia", url: "https://iptv-org.github.io/iptv/countries/ru.m3u" },
     { name: "Belarus", url: "https://iptv-org.github.io/iptv/countries/by.m3u" },
@@ -195,6 +202,9 @@ const START_TIMEOUT = 12000;
 const MAX_CANDIDATES = 15;
 const IS_HTTPS_PAGE = location.protocol === "https:";
 
+// https səhifədə http yayımı yalnız proxy ilə açmaq olar
+const BLOCK_HTTP = IS_HTTPS_PAGE && !PROXY_URL;
+
 
 /* ============================================
    HELPERS
@@ -208,6 +218,16 @@ function normalize(value) {
         .replace(/ё/g, "е")
         .replace(/[^a-zа-я0-9]+/gi, " ")
         .trim();
+}
+
+/*
+    Proxy varsa ünvanı proxy-dən keçirir.
+    Worker m3u8 daxilindəki linkləri də özü proxy-yə çevirir,
+    ona görə yalnız ilk ünvanı sarımaq kifayətdir.
+*/
+function viaProxy(url) {
+    if (!PROXY_URL) return url;
+    return PROXY_URL.replace(/\/+$/, "") + "/?url=" + encodeURIComponent(url);
 }
 
 function showStatus(message, type = "loading") {
@@ -376,6 +396,7 @@ function buildChannels(entries) {
         ...definition,
         urls: [],
         sources: [],
+        blockedHttp: 0,     // mixed-content səbəbilə gizlədilən http ünvanların sayı
         status: "unknown"   // ok | unknown | bad
     }));
 
@@ -416,9 +437,11 @@ function buildChannels(entries) {
             source: channel.sources[i]
         }));
 
-        // https səhifədə http yayımlar brauzer tərəfindən bloklanır (mixed content)
-        if (IS_HTTPS_PAGE) {
+        // https səhifədə proxy olmadan http yayımlar brauzer tərəfindən bloklanır
+        if (BLOCK_HTTP) {
+            const before = items.length;
             items = items.filter(item => item.url.startsWith("https://"));
+            channel.blockedHttp = before - items.length;
         }
 
         // https ünvanlar http-dən əvvəl
@@ -449,7 +472,7 @@ async function probeUrl(url, timeoutMs = 8000) {
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-        const res = await fetch(url, {
+        const res = await fetch(viaProxy(url), {
             signal: controller.signal,
             cache: "no-store"
         });
@@ -468,6 +491,7 @@ async function probeUrl(url, timeoutMs = 8000) {
 
             if (!sub) return "bad";
 
+            // Proxy m3u8 daxilini mütləq ünvanlara çevirir
             const res2 = await fetch(new URL(sub, res.url).href, {
                 signal: controller.signal,
                 cache: "no-store"
@@ -483,7 +507,7 @@ async function probeUrl(url, timeoutMs = 8000) {
         return "ok";
 
     } catch {
-        // CORS, timeout, mixed content və s. - qərar vermirik
+        // CORS, timeout və s. - qərar vermirik
         return "unknown";
     } finally {
         clearTimeout(timer);
@@ -583,8 +607,10 @@ async function loadChannels() {
     // Bütün kanalları DƏRHAL göstər
     channels = buildChannels(entries);
 
+    const proxyNote = PROXY_URL ? " · proxy" : (IS_HTTPS_PAGE ? " · proxy yoxdur" : "");
+
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v8`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal${proxyNote} · v9`;
 
     renderChannels();
 
@@ -595,7 +621,7 @@ async function loadChannels() {
         const ok = channels.filter(c => c.status === "ok").length;
 
         sourceInfo.textContent =
-            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v8`;
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib${proxyNote} · v9`;
     });
 }
 
@@ -747,11 +773,13 @@ function startNextSource(session) {
         return;
     }
 
-    const url = currentUrls[sourcePosition];
+    const originalUrl = currentUrls[sourcePosition];
+    const url = viaProxy(originalUrl);
 
     console.log(
         `Trying ${sourcePosition + 1}/${currentUrls.length}:`,
-        url
+        originalUrl,
+        PROXY_URL ? "(proxy)" : ""
     );
 
     showStatus(
@@ -950,17 +978,23 @@ function showUnavailable(session) {
         currentHls = null;
     }
 
-    showStatus(
-        "Bu kanal üçün işlək yayım ünvanı tapılmadı.",
-        "error"
-    );
+    let message = "Bu kanal üçün işlək yayım ünvanı tapılmadı.";
+
+    // Səbəb mixed content-dirsə istifadəçiyə düzgün izah et
+    if (currentChannel && currentChannel.blockedHttp > 0 && !currentUrls.length) {
+        message =
+            "Bu kanalın yayımı yalnız http ilə mövcuddur, https səhifədə bloklanır. " +
+            "Proxy (PROXY_URL) qurulmalıdır.";
+    }
+
+    showStatus(message, "error");
 
     setConnected(false);
     setInfo("Stream unavailable");
 
     retryButton.hidden = false;
 
-    if (currentChannel.official) {
+    if (currentChannel && currentChannel.official) {
         mosfilmLink.href = currentChannel.official;
         mosfilmLink.target = "_blank";
         mosfilmLink.rel = "noopener";
