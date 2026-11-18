@@ -67,10 +67,7 @@ const EXTRA_STREAMS = {
     ],
 
     ntv: [
-        "https://cdn.ntv.ru/ntv0_hd/index.m3u8?filter.tracks=v3v4v5a1l1t1",
-        "https://cdn.ntv.ru/ntv0_hd/tracks-v1a1/playlist.m3u8",
-        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8",
-        "https://cdn.ntv.ru/ntv0/playlist.m3u8"
+        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
     ],
 
     pobeda: [
@@ -124,7 +121,7 @@ const CHANNEL_DEFINITIONS = [
         category: "news"
     },
     {
-        id: "ntv",
+       id: "ntv",
         name: "НТВ",
         aliases: ["ntv", "нтв"],
         category: "news"
