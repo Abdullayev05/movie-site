@@ -11,6 +11,26 @@ const PLAYLISTS = [
 ];
 
 
+/* ============================================
+   PROXY (GitHub Pages https üçün)
+   Cloudflare Worker qurandan sonra SIZIN-AD hissəsini
+   öz worker ünvanınızla əvəz edin.
+   Məsələn: https://tvproxy.ali123.workers.dev/?url=
+============================================ */
+
+const PROXY = "https://tvproxy.SIZIN-AD.workers.dev/?url=";
+
+// Proxy yalnız düzgün ünvan yazılıbsa aktiv olur
+const PROXY_ENABLED = !PROXY.includes("SIZIN-AD");
+
+// Bu kanallar üçün https ünvanların proxy variantı da ehtiyat kimi əlavə olunur (CORS üçün)
+const PROXY_ALWAYS = ["russia1", "pobeda"];
+
+function proxied(url) {
+    return PROXY + encodeURIComponent(url);
+}
+
+
 /*
     Additional candidate streams from public IPTV listings.
     Key = channel id. Not guaranteed or represented as official.
@@ -30,7 +50,8 @@ const EXTRA_STREAMS = {
 
     russia1: [
         "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8",
-        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8"
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8",
+        "http://wpc.970A.edgecastcdn.net/80970A/HALO_Russia-1/hls/hls_russia-1/index.m3u8"
     ],
 
     perviy: [
@@ -40,11 +61,25 @@ const EXTRA_STREAMS = {
         "https://streaming.thestream.cyou/live/210-req_offset_28000000-req_window_0-1k_v5.m3u8"
     ],
 
-    by2: [],
-
     ntv: [
         "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
-    ]
+    ],
+
+    pobeda: [
+        "https://sc.id-tv.kz/Pobeda.m3u8",
+        "https://fs.uplink.kz/pobeda/mono.m3u8?token=onlinetv",
+        "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8",
+        "http://s1.merlive.am/pobeda/index.m3u8",
+        "http://tv.tvip-media.net/pobeda/index.m3u8",
+        "http://str2.iptvhd.ru:8080/Pobeda/index.m3u8",
+        "http://176.222.190.76/btv/SWM/Pobeda/Pobeda.m3u8",
+        "http://87.247.44.26/btv/SWM/Pobeda/Pobeda.m3u8",
+        "http://46.34.209.243/btv/SWM/Pobeda/Pobeda_576p_2000kbps.m3u8"
+    ],
+
+    mir24: [],
+    by2: [],
+    by4: []
 };
 
 
@@ -64,7 +99,8 @@ const CHANNEL_DEFINITIONS = [
         id: "russia1",
         name: "Россия 1",
         aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
-        category: "news"
+        category: "news",
+        official: "https://smotrim.ru/live/1"
     },
     {
         id: "russia24",
@@ -79,16 +115,24 @@ const CHANNEL_DEFINITIONS = [
         category: "news"
     },
     {
-        id: "mir",
-        name: "МИР",
-        aliases: ["mir", "мир"],
-        category: "news"
+        id: "mir24",
+        name: "МИР 24",
+        aliases: ["mir 24", "мир 24", "mir24"],
+        category: "news",
+        official: "https://mir24.tv/live"
     },
     {
         id: "zvezda",
         name: "Звезда",
         aliases: ["zvezda", "звезда"],
         category: "news"
+    },
+    {
+        id: "pobeda",
+        name: "Победа",
+        aliases: ["pobeda", "победа", "pobeda tv"],
+        category: "movie",
+        official: "https://pobeda.tv/home"
     },
 
     /* Belarus */
@@ -118,24 +162,17 @@ const CHANNEL_DEFINITIONS = [
         category: "movie"
     },
     {
+        id: "by4",
+        name: "Беларусь 4",
+        aliases: ["belarus 4", "беларусь 4"],
+        category: "news"
+    },
+    {
         id: "by5",
         name: "Беларусь 5",
         aliases: ["belarus 5", "беларусь 5"],
         category: "movie"
     },
-    // {
-    //     id: "ont",
-    //     name: "ОНТ",
-    //     aliases: ["ont", "онт"],
-    //     category: "news"
-    // },
-    // {
-    //     id: "stv",
-    //     name: "СТВ",
-    //     aliases: ["ctv belarus", "ctv", "ств"],
-    //     category: "news"
-    // },
-
     {
         id: "perviy",
         name: "Первый канал",
@@ -405,6 +442,43 @@ function buildChannels(entries) {
         }
     }
 
+    // Proxy: GitHub Pages (https) http yayımları birbaşa açmır
+    if (PROXY_ENABLED) {
+        for (const channel of result) {
+            const urls = [];
+            const sources = [];
+
+            channel.urls.forEach((url, i) => {
+                const src = channel.sources[i];
+
+                if (url.startsWith("http://") && location.protocol === "https:") {
+                    urls.push(proxied(url));
+                    sources.push(src + " (proxy)");
+                } else {
+                    urls.push(url);
+                    sources.push(src);
+                }
+            });
+
+            // Seçilmiş kanallar: https ünvanların proxy variantı ehtiyat kimi
+            if (PROXY_ALWAYS.includes(channel.id)) {
+                channel.urls.forEach((url, i) => {
+                    if (url.startsWith("https://")) {
+                        const p = proxied(url);
+
+                        if (!urls.includes(p)) {
+                            urls.push(p);
+                            sources.push(channel.sources[i] + " (proxy)");
+                        }
+                    }
+                });
+            }
+
+            channel.urls = urls;
+            channel.sources = sources;
+        }
+    }
+
     // https ünvanlar http-dən əvvəl (mixed content problemi üçün)
     for (const channel of result) {
         const items = channel.urls.map((url, i) => ({
@@ -563,18 +637,24 @@ async function loadChannels() {
     channels = buildChannels(entries);
 
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v7`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v8`;
 
     renderChannels();
 
     console.log("Channel results:", channels);
+
+    if (location.protocol === "https:" && !PROXY_ENABLED) {
+        console.warn(
+            "PROXY ünvanı yazılmayıb. http yayımlar (məs. Россия 1) GitHub-da açılmaya bilər."
+        );
+    }
 
     // Yoxlama arxa fonda gedir, kanalı silmir
     verifyChannels(channels).then(() => {
         const ok = channels.filter(c => c.status === "ok").length;
 
         sourceInfo.textContent =
-            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v7`;
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v8`;
     });
 }
 
