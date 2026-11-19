@@ -24,18 +24,20 @@ const EXTRA_STREAMS = {
     ],
 
     russia24: [
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia24-hd/index.m3u8",
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia24-sd/index.m3u8",
         "https://live.smotrim.ru/vgtrk/0/russia24-hd/index.m3u8",
-        "https://stream.smotrim.ru/hls2/russia24nl_smotrim/playlist_5.m3u8"
+        "https://stream.smotrim.ru/hls2/russia24nl_smotrim/playlist_5.m3u8",
+        "https://corsproxy.io/?" + encodeURIComponent("https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia24-hd/index.m3u8"),
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia24-hd/index.m3u8")
     ],
 
     russia1: [
-        "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8", //
-        "https://stream8.cinerama.uz/1020/tracks-v1a1/mono.m3u8", //
-        "https://stream8.cinerama.uz/1017/tracks-v1a1/mono.m3u8",
+        "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8",
         "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8",
         "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-sd/index.m3u8",
         "https://fs.uplink.kz/russia1/mono.m3u8?token=onlinetv",
-        "http://31.148.48.15/Rossiya_1_HD/index.m3u8", //
+        "http://31.148.48.15/Rossiya_1_HD/index.m3u8",
         "http://31.222.235.15/russia1/index.m3u8",
         "http://178.212.71.253:8000/play/2/index.m3u8",
         "https://corsproxy.io/?" + encodeURIComponent("https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8"),
@@ -44,6 +46,8 @@ const EXTRA_STREAMS = {
 
     perviy: [
         "https://okkotv-live.cdnvideo.ru/channel/Pervii_Kanal_OTT_HD.m3u8",
+        "https://corsproxy.io/?" + encodeURIComponent("https://stream.1tv.ru/hls/1tv.m3u8"),
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://stream.1tv.ru/hls/1tv.m3u8"),
         "http://178.212.71.253:8000/play/1/index.m3u8",
         "http://tv.tuva.ru/ort/index.m3u8",
         "https://streaming.thestream.cyou/live/210-req_offset_28000000-req_window_0-1k_v5.m3u8"
@@ -53,35 +57,45 @@ const EXTRA_STREAMS = {
 
     ntv: [
         "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8",
-        "https://stream8.cinerama.uz/1023/tracks-v1a1/mono.m3u8", //
-        "https://bl.rutube.ru/livestream/c37cd74192c6bc3d6cd6077c0c4fd686/index.m3u8", //
-        "https://cdn.ntv.ru/th_pravo/playlist.m3u8", //
-        "https://cdn.ntv.ru/th_serial/tracks-v1a1/mono.m3u8", //
-        "http://cdn.ntv.ru/unknown_russia/tracks-v3a1/mono.m3u8", //
+        "https://bl.rutube.ru/livestream/c37cd74192c6bc3d6cd6077c0c4fd686/index.m3u8",
+        "https://cdn.ntv.ru/th_pravo/playlist.m3u8",
+        "https://cdn.ntv.ru/th_serial/tracks-v1a1/mono.m3u8",
+        "http://cdn.ntv.ru/unknown_russia/tracks-v3a1/mono.m3u8",
         "https://corsproxy.io/?" + encodeURIComponent("https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"),
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8")
     ],
+
     pobeda: [
-        "https://pkvc-hls3.cdnvideo.ru/Pobeda/smil:Pobeda.smil/chunklist_b5128000_slru.m3u8", //
+        "https://pkvc-hls3.cdnvideo.ru/Pobeda/smil:Pobeda.smil/chunklist_b5128000_slru.m3u8",
         "https://pkvc-hls3.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8",
-        "https://fs.uplink.kz/pobeda/mono.m3u8?token=onlinetv", //
+        "https://fs.uplink.kz/pobeda/mono.m3u8?token=onlinetv",
         "https://cdn4.skygo.mn/live/disk1/Pobeda/HLSv3-FTA/Pobeda.m3u8",
         "https://cdn4.skygo.mn/live/disk1/Pobeda/HLSv3-FTA/Pobeda-1000.m3u8",
         "https://cdn4.skygo.mn/live/disk1/Pobeda/HLSv3-FTA/Pobeda-2000.m3u8",
-        "http://178.217.72.66:8080/pobeda/index.m3u8", //
+        "http://178.217.72.66:8080/pobeda/index.m3u8",
         "http://str2.iptvhd.ru:8080/Pobeda/index.m3u8",
-        "http://iptv.prosto.tv:7000/ch317/video.m3u8", //
+        "http://iptv.prosto.tv:7000/ch317/video.m3u8",
         "http://foosb3v5.tvclub.xyz/iptv/QG2UA7TEWDGBEW/2402/index.m3u.m3u8",
-        "http://iptv.mega.net.ru:8888/Pobeda/index.m3u8" //
+        "http://iptv.mega.net.ru:8888/Pobeda/index.m3u8"
     ],
+
     mir24: [
         "https://cdn-edge.mir24.tv/hls/mir24/index.m3u8",
         "https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8",
-        "https://stream8.cinerama.uz/1219/tracks-v1a1/mono.m3u8",
         "https://hls-mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/playlist.m3u8",
         "https://corsproxy.io/?" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8"),
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8")
     ],
+
+    mir: [
+        "https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8",
+        "https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/hd/playlist.m3u8",
+        "https://hls-mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8",
+        "http://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8",
+        "http://hls.mirtv.cdnvideo.ru/mirtv-parampublish/hd/playlist.m3u8",
+        "https://corsproxy.io/?" + encodeURIComponent("https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8"),
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8")
+    ]
 };
 
 
@@ -125,13 +139,19 @@ const CHANNEL_DEFINITIONS = [
         category: "news",
         logo: ""
     },
-
     {
         id: "mir24",
         name: "МИР 24",
         aliases: ["mir 24", "мир 24", "mir24"],
         category: "news",
         logo: ""
+    },
+    {
+        id: "mir",
+        name: "МИР",
+        aliases: ["mir", "мир", "mir tv", "мир тв", "mir hd", "мир hd"],
+        category: "general",
+        logo: "./logos/mir.png"
     },
     {
         id: "zvezda",
@@ -198,7 +218,7 @@ const CHANNEL_DEFINITIONS = [
         aliases: ["belarus 24", "беларусь 24"],
         category: "news",
         logo: ""
-    },
+    }
 ];
 
 
@@ -249,8 +269,18 @@ const MAX_CANDIDATES = 15;
 
 
 /* ============================================
-   HELPERS
+   HELPERS & STREAM FILTER
 ============================================ */
+
+const BLOCKED_STREAM_HOSTS = [
+    "cinerama.uz",
+    "stream8.cinerama.uz"
+];
+
+function isBlockedStreamUrl(url) {
+    const lower = String(url || "").toLowerCase();
+    return BLOCKED_STREAM_HOSTS.some(host => lower.includes(host));
+}
 
 function normalize(value) {
     return String(value || "")
@@ -372,6 +402,13 @@ function parseM3U(text, sourceName) {
             continue;
         }
 
+        if (isBlockedStreamUrl(line)) {
+            currentName = "";
+            currentGroup = "";
+            currentLogo = "";
+            continue;
+        }
+
         if (currentName) {
             entries.push({
                 name: currentName,
@@ -472,6 +509,8 @@ function buildChannels(entries) {
     );
 
     for (const entry of entries) {
+        if (isBlockedStreamUrl(entry.url)) continue;
+
         const definition = findDefinition(entry);
 
         if (!definition) continue;
@@ -495,6 +534,8 @@ function buildChannels(entries) {
         if (!extra) continue;
 
         for (const url of extra) {
+            if (isBlockedStreamUrl(url)) continue;
+
             if (!channel.urls.includes(url)) {
                 channel.urls.push(url);
                 channel.sources.push("Additional public source");
@@ -527,11 +568,15 @@ function buildChannels(entries) {
    STREAM HEALTH CHECK (kanalı SİLMİR, yalnız sıralayır)
    Qaytarır: "ok" | "bad" | "unknown"
 - ok      : playlist oxundu və düzgündür
-- bad     : server aydın şəkildə xəta verdi / playlist yanlışdır
+- bad     : server aydın şəkildə xəta verdi / playlist yanlışdır / bloklanıb
 - unknown : CORS / timeout / şəbəkə xətası (yayım yenə də işləyə bilər)
 ============================================ */
 
-async function probeUrl(url, timeoutMs = 8000) {
+async function probeUrl(url, timeoutMs = 6000) {
+    if (isBlockedStreamUrl(url)) {
+        return "bad";
+    }
+
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -555,7 +600,11 @@ async function probeUrl(url, timeoutMs = 8000) {
 
             if (!sub) return "bad";
 
-            const res2 = await fetch(new URL(sub, res.url).href, {
+            const subUrl = new URL(sub, res.url).href;
+
+            if (isBlockedStreamUrl(subUrl)) return "bad";
+
+            const res2 = await fetch(subUrl, {
                 signal: controller.signal,
                 cache: "no-store"
             });
@@ -593,7 +642,7 @@ async function verifyChannels(list) {
                 source: channel.sources[i],
                 state: states[i]
             }))
-            .filter(item => item.state !== "bad")
+            .filter(item => item.state !== "bad" && !isBlockedStreamUrl(item.url))
             .sort((a, b) => rank[a.state] - rank[b.state]);
 
         channel.urls = items.map(item => item.url);
@@ -660,7 +709,7 @@ async function loadChannels() {
     channels = buildChannels(entries);
 
     sourceInfo.textContent =
-        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v7`;
+        `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · v8`;
 
     renderChannels();
 
@@ -671,7 +720,7 @@ async function loadChannels() {
         const ok = channels.filter(c => c.status === "ok").length;
 
         sourceInfo.textContent =
-            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v7`;
+            `${successful}/${PLAYLISTS.length} playlist · ${channels.length} kanal · ${ok} təsdiqlənib · v8`;
     });
 }
 
@@ -794,10 +843,14 @@ function playChannel(channel) {
     setConnected(false);
     setInfo("Connecting to " + channel.name);
 
-    if (!channel.urls.length) {
+    const usableUrls = (channel.urls || []).filter(u => !isBlockedStreamUrl(u));
+
+    if (!usableUrls.length) {
         showUnavailable(session);
         return;
     }
+
+    currentChannel.urls = usableUrls;
 
     showStatus("Yayım mənbəyinə qoşulur...");
 
@@ -817,6 +870,13 @@ function startNextSource(session) {
     if (currentHls) {
         currentHls.destroy();
         currentHls = null;
+    }
+
+    while (
+        sourcePosition < currentChannel.urls.length &&
+        isBlockedStreamUrl(currentChannel.urls[sourcePosition])
+    ) {
+        sourcePosition++;
     }
 
     if (sourcePosition >= currentChannel.urls.length) {
