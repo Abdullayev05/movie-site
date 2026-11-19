@@ -142,13 +142,13 @@ const CHANNEL_DEFINITIONS = [
         category: "news",
         logo: ""
     },
-    {
-        id: "mir",
-        name: "МИР",
-        aliases: ["mir", "мир", "mir tv", "мир тв", "mir hd", "мир hd"],
-        category: "general",
-        logo: "./logos/mir.png" // sağdakı МИР loqosunu bu adla qovluğa qoysan birbaşa göstərəcək
-    },
+    // {
+    //     id: "mir",
+    //     name: "МИР",
+    //     aliases: ["mir", "мир", "mir tv", "мир тв", "mir hd", "мир hd"],
+    //     category: "general",
+    //     logo: "./logos/mir.png" // sağdakı МИР loqosunu bu adla qovluğa qoysan birbaşa göstərəcək
+    // },
     {
         id: "zvezda",
         name: "Звезда",
