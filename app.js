@@ -46,7 +46,9 @@ const EXTRA_STREAMS = {
         "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
     ],
     pobeda: [
-        "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"
+        "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8",
+        "https://corsproxy.io/?" + encodeURIComponent("https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"),
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8")
     ],
     mir24: [
         "https://cdn-edge.mir24.tv/hls/mir24/index.m3u8",
@@ -63,52 +65,66 @@ const CHANNEL_DEFINITIONS = [
     {
         id: "mosfilm",
         name: "Mosfilm. Zolotaya Kolleksiya",
-        aliases: ["mosfilm", "mosfilm gold collection"],
+        aliases: [
+            "mosfilm",
+            "mosfilm gold collection",
+            "mosfilm zolotaya kolleksiya",
+            "мосфильм",
+            "мосфильм золотая коллекция"
+        ],
         category: "movie",
+        logo: "mosfilm.png",
         official: "https://www.mosfilm.ru/cinema/"
     },
     // {
     //     id: "russia1",
     //     name: "Россия 1",
     //     aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
-    //     category: "news"
+    //     category: "news",
+    //     logo: ""
     // },
     {
         id: "russia24",
         name: "Россия 24",
         aliases: ["russia-24", "russia 24", "россия-24", "россия 24"],
-        category: "news"
+        category: "news",
+        logo: ""
     },
     // {
     //     id: "ntv",
     //     name: "НТВ",
     //     aliases: ["ntv", "нтв"],
-    //     category: "news"
+    //     category: "news",
+    //     logo: ""
     // },
-    
+
     // {
     //     id: "mir24",
     //     name: "МИР 24",
     //     aliases: ["mir 24", "мир 24", "mir24"],
-    //     category: "news"
+    //     category: "news",
+    //     logo: ""
     // },
     {
         id: "zvezda",
         name: "Звезда",
         aliases: ["zvezda", "звезда"],
-        category: "news"
+        category: "news",
+        logo: ""
     },
     {
         id: "pobeda",
         name: "Победа",
         aliases: ["pobeda", "победа", "pobeda tv"],
-        category: "movie"
+        category: "movie",
+        logo: ""
     },
     {
         id: "perviy",
         name: "Первый канал",
         aliases: ["channel one russia", "perviy kanal", "первый канал", "1tv"],
         category: "news",
+        logo: "",
         official: "https://www.1tv.ru/live"
     },
     /*Belarus*/
@@ -116,38 +132,44 @@ const CHANNEL_DEFINITIONS = [
         id: "by1",
         name: "Беларусь 1",
         aliases: ["belarus 1", "беларусь 1"],
-        category: "news"
+        category: "news",
+        logo: ""
     },
     {
         id: "by2",
         name: "Беларусь 2",
         aliases: ["belarus 2", "беларусь 2"],
         category: "movie",
+        logo: "",
         official: "https://www.tvr.by"
     },
     {
         id: "by3",
         name: "Беларусь 3",
         aliases: ["belarus 3", "беларусь 3"],
-        category: "movie"
+        category: "movie",
+        logo: ""
     },
     {
         id: "by4",
         name: "Беларусь 4",
         aliases: ["belarus 4", "беларусь 4"],
-        category: "movie"
+        category: "movie",
+        logo: ""
     },
     {
         id: "by5",
         name: "Беларусь 5",
         aliases: ["belarus 5", "беларусь 5"],
-        category: "movie"
+        category: "movie",
+        logo: ""
     },
     {
         id: "by24",
         name: "Беларусь 24",
         aliases: ["belarus 24", "беларусь 24"],
-        category: "news"
+        category: "news",
+        logo: ""
     },
 ];
 
@@ -251,6 +273,36 @@ function stopPlayer() {
     video.load();
 }
 
+function createChannelAvatar(channel) {
+    const fallback = document.createElement("span");
+    fallback.className = "channel-logo-fallback";
+    fallback.textContent = channel.name.slice(0, 2).toUpperCase();
+    fallback.style.cssText =
+        "width:32px;height:32px;border-radius:6px;display:inline-flex;" +
+        "align-items:center;justify-content:center;font-size:11px;font-weight:700;" +
+        "background:#2a2e37;color:#e6e8ec;flex-shrink:0;margin-right:10px;";
+
+    if (!channel.logo) {
+        return fallback;
+    }
+
+    const img = document.createElement("img");
+    img.className = "channel-logo";
+    img.src = channel.logo;
+    img.alt = channel.name;
+    img.loading = "lazy";
+    img.referrerPolicy = "no-referrer";
+    img.style.cssText =
+        "width:32px;height:32px;border-radius:6px;object-fit:contain;" +
+        "background:#ffffff;padding:2px;flex-shrink:0;margin-right:10px;";
+
+    img.addEventListener("error", () => {
+        img.replaceWith(fallback);
+    }, { once: true });
+
+    return img;
+}
+
 
 /* ============================================
    PLAYLIST PARSER
@@ -262,6 +314,7 @@ function parseM3U(text, sourceName) {
 
     let currentName = "";
     let currentGroup = "";
+    let currentLogo = "";
 
     for (const lineValue of lines) {
         const line = lineValue.trim();
@@ -278,6 +331,9 @@ function parseM3U(text, sourceName) {
             const group = line.match(/group-title="([^"]*)"/i);
             currentGroup = group ? group[1] : "";
 
+            const logo = line.match(/tvg-logo="([^"]*)"/i);
+            currentLogo = logo ? logo[1].trim() : "";
+
             continue;
         }
 
@@ -292,6 +348,7 @@ function parseM3U(text, sourceName) {
             entries.push({
                 name: currentName,
                 group: currentGroup,
+                logo: currentLogo,
                 source: sourceName,
                 url: line
             });
@@ -299,6 +356,7 @@ function parseM3U(text, sourceName) {
 
         currentName = "";
         currentGroup = "";
+        currentLogo = "";
     }
 
     return entries;
@@ -375,6 +433,7 @@ function findDefinition(entry) {
 function buildChannels(entries) {
     const result = CHANNEL_DEFINITIONS.map(definition => ({
         ...definition,
+        logo: definition.logo || "",
         urls: [],
         sources: [],
         status: "unknown"   // ok | unknown | bad
@@ -390,6 +449,10 @@ function buildChannels(entries) {
         if (!definition) continue;
 
         const channel = byId.get(definition.id);
+
+        if (!definition.logo && !channel.logo && entry.logo && /^https?:\/\//i.test(entry.logo)) {
+            channel.logo = entry.logo;
+        }
 
         if (!channel.urls.includes(entry.url)) {
             channel.urls.push(entry.url);
@@ -435,9 +498,9 @@ function buildChannels(entries) {
 /* ============================================
    STREAM HEALTH CHECK (kanalı SİLMİR, yalnız sıralayır)
    Qaytarır: "ok" | "bad" | "unknown"
-   - ok      : playlist oxundu və düzgündür
-   - bad     : server aydın şəkildə xəta verdi / playlist yanlışdır
-   - unknown : CORS / timeout / şəbəkə xətası (yayım yenə də işləyə bilər)
+- ok      : playlist oxundu və düzgündür
+- bad     : server aydın şəkildə xəta verdi / playlist yanlışdır
+- unknown : CORS / timeout / şəbəkə xətası (yayım yenə də işləyə bilər)
 ============================================ */
 
 async function probeUrl(url, timeoutMs = 8000) {
@@ -641,9 +704,13 @@ function renderChannels() {
             button.classList.add("active");
         }
 
+        const avatar = createChannelAvatar(channel);
+
         const name = document.createElement("span");
         name.className = "channel-name";
         name.textContent = channel.name;
+        name.style.flex = "1";
+        name.style.textAlign = "left";
 
         const dot = document.createElement("span");
         dot.className = "channel-status-dot";
@@ -653,6 +720,7 @@ function renderChannels() {
             "margin-left:8px;flex-shrink:0;background:" +
             (dotColors[channel.status] || dotColors.unknown);
 
+        button.appendChild(avatar);
         button.appendChild(name);
         button.appendChild(dot);
 
