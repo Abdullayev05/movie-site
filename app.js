@@ -46,8 +46,19 @@ const EXTRA_STREAMS = {
         "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
     ],
     pobeda: [
+        "https://pkvc-hls3.cdnvideo.ru/Pobeda/smil:Pobeda.smil/chunklist_b5128000_slru.m3u8",
         "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8",
-        "https://corsproxy.io/?" + encodeURIComponent("https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8"),
+        "https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/chunklist_b2500000_slru.m3u8",
+        "https://pkvc-hls3.cdnvideo.ru/Pobeda/smil:Pobeda.smil/chunklist_b2500000_slru.m3u8",
+        "https://cdn4.skygo.mn/live/disk1/Pobeda/HLSv3-FTA/Pobeda.m3u8",
+        "https://cdn4.skygo.mn/live/disk1/Pobeda/HLSv3-FTA/Pobeda-1000.m3u8",
+        "https://cdn4.skygo.mn/live/disk1/Pobeda/HLSv3-FTA/Pobeda-2000.m3u8",
+        "http://178.217.72.66:8080/pobeda/index.m3u8",
+        "http://str2.iptvhd.ru:8080/Pobeda/index.m3u8",
+        "http://iptv.snt-link.ru/pobeda/index.m3u8",
+        "http://tv.netbynet.ru/pobeda/index.m3u8",
+        "http://hls.tv.beeline.ru/pobeda/playlist.m3u8",
+        "https://corsproxy.io/?" + encodeURIComponent("https://pkvc-hls3.cdnvideo.ru/Pobeda/smil:Pobeda.smil/chunklist_b5128000_slru.m3u8"),
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://pkvc-hls.cdnvideo.ru/Pobeda/smil:Pobeda.smil/playlist.m3u8")
     ],
     mir24: [
