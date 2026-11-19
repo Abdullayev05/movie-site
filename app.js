@@ -32,23 +32,16 @@ const EXTRA_STREAMS = {
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia24-hd/index.m3u8")
     ],
 
-  russia1: [
-        "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8",
-        "https://live.smotrim.ru/vgtrk/0/russia1-sd/index.m3u8",
-        "https://dvr-player.smotrim.ru/live/smil:rtrp.smil/playlist.m3u8",
+    russia1: [
+        "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8", //
+        "https://stream8.cinerama.uz/1020/tracks-v1a1/mono.m3u8", //
+        "https://stream8.cinerama.uz/1017/tracks-v1a1/mono.m3u8",
         "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8",
         "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-sd/index.m3u8",
-        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/volgograd/russia1-hd/index.m3u8",
-        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/kursk/russia1-hd/index.m3u8",
-        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/perm/russia1-hd/index.m3u8",
-        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/tomsk/russia1-hd/index.m3u8",
-        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/kaliningrad/russia1-hd/index.m3u8",
         "https://fs.uplink.kz/russia1/mono.m3u8?token=onlinetv",
-        "http://31.148.48.15/Rossiya_1_HD/index.m3u8",
+        "http://31.148.48.15/Rossiya_1_HD/index.m3u8", //
         "http://31.222.235.15/russia1/index.m3u8",
         "http://178.212.71.253:8000/play/2/index.m3u8",
-        "http://185.158.113.106:8080/russia1/index.m3u8",
-        "http://iptv.snt-tv.ru/hls/russia1/index.m3u8",
         "https://corsproxy.io/?" + encodeURIComponent("https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8"),
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8")
     ],
@@ -64,17 +57,13 @@ const EXTRA_STREAMS = {
 
     by2: [],
 
-  ntv: [
+    ntv: [
         "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8",
-        "https://cdn.ntv.ru/ntv-msk_sd/tracks-v1a1/playlist.m3u8",
-        "https://cdn.ntv.ru/th_pravo/playlist.m3u8",
-        "https://cdn.ntv.ru/th_serial/tracks-v1a1/mono.m3u8",
-        "https://cdn.ntv.ru/th_detective/tracks-v1a1/mono.m3u8",
-        "https://bl.rutube.ru/livestream/c37cd74192c6bc3d6cd6077c0c4fd686/index.m3u8",
-        "http://cdn.ntv.ru/unknown_russia/tracks-v3a1/mono.m3u8",
-        "http://moobl.ru/hls/NTV.m3u8",
-        "http://31.222.235.15/ntv/index.m3u8",
-        "http://178.212.71.253:8000/play/3/index.m3u8",
+        "https://stream8.cinerama.uz/1023/tracks-v1a1/mono.m3u8", //
+        "https://bl.rutube.ru/livestream/c37cd74192c6bc3d6cd6077c0c4fd686/index.m3u8", //
+        "https://cdn.ntv.ru/th_pravo/playlist.m3u8", //
+        "https://cdn.ntv.ru/th_serial/tracks-v1a1/mono.m3u8", //
+        "http://cdn.ntv.ru/unknown_russia/tracks-v3a1/mono.m3u8", //
         "https://corsproxy.io/?" + encodeURIComponent("https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"),
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8")
     ],
