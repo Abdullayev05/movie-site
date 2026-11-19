@@ -29,6 +29,15 @@ const EXTRA_STREAMS = {
     ],
 
     russia1: [
+        "https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8", //
+        "https://stream8.cinerama.uz/1020/tracks-v1a1/mono.m3u8", //
+        "https://stream8.cinerama.uz/1017/tracks-v1a1/mono.m3u8",
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-hd/index.m3u8",
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia1-sd/index.m3u8",
+        "https://fs.uplink.kz/russia1/mono.m3u8?token=onlinetv",
+        "http://31.148.48.15/Rossiya_1_HD/index.m3u8", //
+        "http://31.222.235.15/russia1/index.m3u8",
+        "http://178.212.71.253:8000/play/2/index.m3u8",
         "https://corsproxy.io/?" + encodeURIComponent("https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8"),
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://live.smotrim.ru/vgtrk/0/russia1-hd/index.m3u8")
     ],
@@ -91,13 +100,13 @@ const CHANNEL_DEFINITIONS = [
         logo: "mosfilm.png",
         official: "https://www.mosfilm.ru/cinema/"
     },
-    // {
-    //     id: "russia1",
-    //     name: "Россия 1",
-    //     aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
-    //     category: "news",
-    //     logo: ""
-    // },
+    {
+        id: "russia1",
+        name: "Россия 1",
+        aliases: ["russia-1", "russia 1", "россия-1", "россия 1"],
+        category: "news",
+        logo: "https://commons.wikimedia.org/wiki/Special:FilePath/Rossiya-1%20Logo.svg"
+    },
     {
         id: "russia24",
         name: "Россия 24",
