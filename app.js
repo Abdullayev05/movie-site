@@ -43,7 +43,14 @@ const EXTRA_STREAMS = {
     by2: [],
 
     ntv: [
-        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"
+        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8",
+        "https://stream8.cinerama.uz/1023/tracks-v1a1/mono.m3u8", //
+        "https://bl.rutube.ru/livestream/c37cd74192c6bc3d6cd6077c0c4fd686/index.m3u8", //
+        "https://cdn.ntv.ru/th_pravo/playlist.m3u8", //
+        "https://cdn.ntv.ru/th_serial/tracks-v1a1/mono.m3u8", //
+        "http://cdn.ntv.ru/unknown_russia/tracks-v3a1/mono.m3u8", //
+        "https://corsproxy.io/?" + encodeURIComponent("https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"),
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8")
     ],
     pobeda: [
         "https://pkvc-hls3.cdnvideo.ru/Pobeda/smil:Pobeda.smil/chunklist_b5128000_slru.m3u8", //
@@ -98,13 +105,13 @@ const CHANNEL_DEFINITIONS = [
         category: "news",
         logo: ""
     },
-    // {
-    //     id: "ntv",
-    //     name: "НТВ",
-    //     aliases: ["ntv", "нтв"],
-    //     category: "news",
-    //     logo: ""
-    // },
+    {
+        id: "ntv",
+        name: "НТВ",
+        aliases: ["ntv", "нтв"],
+        category: "news",
+        logo: ""
+    },
 
     // {
     //     id: "mir24",
