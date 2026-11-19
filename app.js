@@ -24,8 +24,19 @@ const EXTRA_STREAMS = {
     ],
 
     russia24: [
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia24-hd/index.m3u8",
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/0/russia24-sd/index.m3u8",
         "https://live.smotrim.ru/vgtrk/0/russia24-hd/index.m3u8",
-        "https://stream.smotrim.ru/hls2/russia24nl_smotrim/playlist_5.m3u8"
+        "https://live.smotrim.ru/vgtrk/0/russia24-sd/index.m3u8",
+        "https://stream.smotrim.ru/hls2/russia24nl_smotrim/playlist_5.m3u8",
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/volgograd/russia24-hd/index.m3u8",
+        "https://vgtrkregion-reg.cdnvideo.ru/vgtrk/kursk/russia24-hd/index.m3u8",
+        "https://fs.uplink.kz/russia24/mono.m3u8?token=onlinetv",
+        "http://77.232.131.211/Rossiya24/index.m3u8",
+        "http://31.222.235.15/russia24/index.m3u8",
+        "http://178.212.71.253:8000/play/4/index.m3u8",
+        "https://corsproxy.io/?" + encodeURIComponent("https://live.smotrim.ru/vgtrk/0/russia24-hd/index.m3u8"),
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://live.smotrim.ru/vgtrk/0/russia24-hd/index.m3u8")
     ],
 
     russia1: [
