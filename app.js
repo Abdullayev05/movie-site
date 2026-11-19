@@ -76,7 +76,11 @@ const EXTRA_STREAMS = {
     ],
     mir24: [
         "https://cdn-edge.mir24.tv/hls/mir24/index.m3u8",
-        "https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8"
+        "https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8",
+        "https://stream8.cinerama.uz/1219/tracks-v1a1/mono.m3u8",
+        "https://hls-mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/playlist.m3u8",
+        "https://corsproxy.io/?" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8"),
+        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8")
     ],
 };
 
@@ -122,13 +126,13 @@ const CHANNEL_DEFINITIONS = [
         logo: ""
     },
 
-    // {
-    //     id: "mir24",
-    //     name: "МИР 24",
-    //     aliases: ["mir 24", "мир 24", "mir24"],
-    //     category: "news",
-    //     logo: ""
-    // },
+    {
+        id: "mir24",
+        name: "МИР 24",
+        aliases: ["mir 24", "мир 24", "mir24"],
+        category: "news",
+        logo: ""
+    },
     {
         id: "zvezda",
         name: "Звезда",
