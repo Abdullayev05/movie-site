@@ -17,10 +17,15 @@ const PLAYLISTS = [
 */
 
 const EXTRA_STREAMS = {
-    mosfilm: [
-        "https://fs.uplink.kz/mosfilm/mono.m3u8?token=onlinetv",
-        "http://31.222.235.15/mosfilm/index.m3u8",
-        "http://stream.mcquack.net/369/index.m3u8"
+   mosfilm: [
+        "https://s.xittv.net/235/index.m3u8?k=1795483872p171i631i74i212S",
+        "http://europe3.livetv.az/russia/mosfilm_2023/playlist.m3u8",
+        "http://europe3.livetv.az/russia/mosfilm/playlist.m3u8",
+        "http://moobl.ru/hls/Mosfilm_hd.m3u8",
+        "http://185.121.1.163:8083/Mosfilm/index.m3u8",
+        "http://178.217.72.66:8080/mosfilm/index.m3u8",
+        "http://178.134.1.158:8081/mosfilm/index.m3u8",
+        "http://178.212.71.253:8000/play/121/index.m3u8"
     ],
 
     russia24: [
