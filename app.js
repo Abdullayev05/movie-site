@@ -17,10 +17,9 @@ const PLAYLISTS = [
 */
 
 const EXTRA_STREAMS = {
-    mosfilm: [
-        "https://fs.uplink.kz/mosfilm/mono.m3u8?token=onlinetv",
-        "http://31.222.235.15/mosfilm/index.m3u8",
-        "http://stream.mcquack.net/369/index.m3u8"
+   mosfilm: [
+        "https://mosfilm.abdullayev1900bayernmunchen.workers.dev/?url=" + encodeURIComponent("http://185.121.1.163:8083/Mosfilm/index.m3u8"),
+        "http://185.121.1.163:8083/Mosfilm/index.m3u8"
     ],
 
     russia24: [
