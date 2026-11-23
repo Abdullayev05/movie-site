@@ -19,14 +19,8 @@ const PLAYLISTS = [
 const EXTRA_STREAMS = {
     mosfilm: [
         "https://fs.uplink.kz/mosfilm/mono.m3u8?token=onlinetv",
-        "https://fs.uplink.kz/mosfilm/tracks-v1a1/mono.ts.m3u8?token=onlinetv",
         "http://31.222.235.15/mosfilm/index.m3u8",
-        "http://stream.mcquack.net/369/index.m3u8",
-        "http://hls127.freeott.top:8080/Mosfilm/video.m3u8",
-        "http://europe3.livetv.az/russia/mosfilm_2023/playlist.m3u8",
-        "http://moobl.ru/hls/Mosfilm_hd.m3u8",
-        "http://185.121.1.163:8083/Mosfilm/index.m3u8",
-        "http://178.134.1.158:8081/mosfilm/index.m3u8"
+        "http://stream.mcquack.net/369/index.m3u8"
     ],
 
     russia24: [
@@ -64,14 +58,17 @@ const EXTRA_STREAMS = {
     by2: [],
 
     ntv: [
-        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8",
-        "https://cdn.ntv.ru/ntv-msk_sd/tracks-v1a1/playlist.m3u8",
-        "https://bl.rutube.ru/livestream/c37cd74192c6bc3d6cd6077c0c4fd686/index.m3u8",
-        "https://cdn.ntv.ru/th_pravo/playlist.m3u8",
-        "https://cdn.ntv.ru/th_serial/tracks-v1a1/mono.m3u8",
-        "http://cdn.ntv.ru/unknown_russia/tracks-v3a1/mono.m3u8",
-        "https://corsproxy.io/?" + encodeURIComponent("https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8"),
-        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8")
+        "https://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/mono.m3u8",
+        "https://cdn.ntv.ru/ntv-msk_sd/tracks-v1a1/mono.m3u8",
+        "https://cdn.ntv.ru/ntv-msk_hd/index.m3u8",
+        "https://cdn.ntv.ru/ntv-msk_sd/index.m3u8",
+        "http://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/playlist.m3u8",
+        "http://cdn.ntv.ru/ntv-msk_sd/tracks-v1a1/playlist.m3u8",
+        "http://cdn.ntv.ru/ntv-msk_hd/tracks-v1a1/mono.m3u8",
+        "http://cdn.ntv.ru/ntv-msk_sd/tracks-v1a1/mono.m3u8",
+        "http://178.212.71.253:8000/play/3/index.m3u8",
+        "http://31.222.235.15/ntv/index.m3u8",
+        "http://188.227.44.167:8080/ntv/index.m3u8"
     ],
 
     pobeda: [
@@ -94,14 +91,6 @@ const EXTRA_STREAMS = {
         "https://hls-mirtv.cdnvideo.ru/mirtv-parampublish/mir24_2500/playlist.m3u8",
         "https://corsproxy.io/?" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8"),
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8")
-    ],
-    mir: [
-        "https://mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8",
-        "https://mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_1500/playlist.m3u8",
-        "https://mirtv.cdnvideo.ru/mirtv-parampublish/hd/playlist.m3u8",
-        "http://mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8",
-        "http://mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_1500/playlist.m3u8",
-        "http://mirtv.cdnvideo.ru/mirtv-parampublish/hd/playlist.m3u8"
     ],
 };
 
@@ -151,14 +140,7 @@ const CHANNEL_DEFINITIONS = [
         name: "МИР 24",
         aliases: ["mir 24", "мир 24", "mir24"],
         category: "news",
-        logo: ""
-    },
-    {
-        id: "mir",
-        name: "МИР",
-        aliases: ["mir", "мир", "mir tv", "мир тв", "mir hd", "мир hd"],
-        category: "general",
-        logo: "./logos/mir.png"
+        logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCwK2v6uK9NVOaqgmhcIIdyFq3srRDnW_ry7WpaJYULQ&s=10"
     },
     {
         id: "zvezda",
