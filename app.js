@@ -93,13 +93,13 @@ const EXTRA_STREAMS = {
         "https://corsproxy.io/?" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8"),
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8")
     ],
-    mir: [
-        "https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8",
-        "https://mirtv-sdr.cdnvideo.ru/mirtv/smil:mirtv.smil/playlist.m3u8",
-        "https://okkotv-live.cdnvideo.ru/channel/Mir_HD.m3u8",
-        "https://okkotv-live.cdnvideo.ru/channel/Mir_SD.m3u8",
-        "http://mirtv-sdr.cdnvideo.ru/mirtv/smil:mirtv.smil/playlist.m3u8",
-        "http://okkotv-live.cdnvideo.ru/channel/Mir_HD.m3u8"
+mir: [
+        "https://mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8",
+        "https://mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_1500/playlist.m3u8",
+        "https://mirtv.cdnvideo.ru/mirtv-parampublish/hd/playlist.m3u8",
+        "http://mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8",
+        "http://mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_1500/playlist.m3u8",
+        "http://mirtv.cdnvideo.ru/mirtv-parampublish/hd/playlist.m3u8"
     ],
 };
 
