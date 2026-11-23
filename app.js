@@ -18,14 +18,14 @@ const PLAYLISTS = [
 
 const EXTRA_STREAMS = {
     mosfilm: [
-    "http://europe3.livetv.az/russia/mosfilm_2023/playlist.m3u8",
-    "http://europe3.livetv.az/russia/mosfilm/playlist.m3u8",
-    "http://moobl.ru/hls/Mosfilm_hd.m3u8",
-    "http://185.121.1.163:8083/Mosfilm/index.m3u8",
-    "http://178.217.72.66:8080/mosfilm/index.m3u8",
-    "http://178.134.1.158:8081/mosfilm/index.m3u8",
-    "http://178.212.71.253:8000/play/121/index.m3u8"
-],
+        "http://europe3.livetv.az/russia/mosfilm_2023/playlist.m3u8",
+        "http://europe3.livetv.az/russia/mosfilm/playlist.m3u8",
+        "http://moobl.ru/hls/Mosfilm_hd.m3u8",
+        "http://185.121.1.163:8083/Mosfilm/index.m3u8",
+        "http://178.217.72.66:8080/mosfilm/index.m3u8",
+        "http://178.134.1.158:8081/mosfilm/index.m3u8",
+        "http://178.212.71.253:8000/play/121/index.m3u8"
+    ],
 
     russia24: [
         "https://live.smotrim.ru/vgtrk/0/russia24-hd/index.m3u8",
@@ -93,15 +93,14 @@ const EXTRA_STREAMS = {
         "https://corsproxy.io/?" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8"),
         "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://cdn-edge.mir24.tv/hls/mir24/index.m3u8")
     ],
-
     mir: [
-        "https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8",
-        "https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/hd/playlist.m3u8",
-        "http://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8",
-        "http://hls.mirtv.cdnvideo.ru/mirtv-parampublish/hd/playlist.m3u8",
-        "https://corsproxy.io/?" + encodeURIComponent("https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8"),
-        "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://hls.mirtv.cdnvideo.ru/mirtv-parampublish/mirtv_2500/playlist.m3u8")
-    ]
+        "https://mir24tv-sdr.cdnvideo.ru/mir24tv/smil:mir24tv.smil/playlist.m3u8",
+        "https://mirtv-sdr.cdnvideo.ru/mirtv/smil:mirtv.smil/playlist.m3u8",
+        "https://okkotv-live.cdnvideo.ru/channel/Mir_HD.m3u8",
+        "https://okkotv-live.cdnvideo.ru/channel/Mir_SD.m3u8",
+        "http://mirtv-sdr.cdnvideo.ru/mirtv/smil:mirtv.smil/playlist.m3u8",
+        "http://okkotv-live.cdnvideo.ru/channel/Mir_HD.m3u8"
+    ],
 };
 
 
